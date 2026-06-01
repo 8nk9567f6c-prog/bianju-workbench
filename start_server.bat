@@ -1,6 +1,6 @@
 @echo off
 chcp 65001 >nul
-cd /d "C:\Users\17928\Desktop\编剧工作台\web"
+cd /d "C:\Users\17928\Desktop\编剧工作台\docs"
 
 echo.
 echo ╔══════════════════════════════════════════╗

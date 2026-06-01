@@ -12,9 +12,11 @@
 
 双击桌面 `编剧工作台` 快捷方式自动加载本配置。
 
-**手机/网页端使用：** 浏览器打开 `C:\Users\17928\Desktop\编剧工作台\web\index.html`，或部署到服务器后通过手机浏览器访问。可添加到手机主屏幕作为 PWA 使用。
+**手机/网页端使用：** 浏览器打开 `C:\Users\17928\Desktop\编剧工作台\docs\index.html`，或通过 GitHub Pages https://8nk9567f6c-prog.github.io/bianju-workbench/ 在任何设备访问。可添加到手机主屏幕作为 PWA 使用。
 
-**网页端数据联动：** 网页通过 `web/data.json` 加载所有规则数据。修改 CLAUDE.md 的规则后，同步编辑 `data.json` 对应条目，网页端刷新即可获取最新规则。详见 `01-网页端使用说明.docx`。
+**网页端数据联动：** 网页通过 `docs/data.json` 加载所有规则数据。修改 CLAUDE.md 的规则后，同步编辑 `data.json` 对应条目，网页端刷新即可获取最新规则。详见 `01-网页端使用说明.docx`。
+
+**GitHub Pages：** https://8nk9567f6c-prog.github.io/bianju-workbench/（push 后自动更新）
 
 ### ⚠️ 核心 DNA 加载（每次会话启动时强制执行）
 
