@@ -1,0 +1,990 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="theme-color" content="#1a1a2e">
+<title>编剧工作台 v4.0</title>
+<link rel="manifest" href="manifest.json">
+<style>
+:root {
+  --bg: #0d0d1a; --card: #1a1a2e; --accent: #e94560; --gold: #f0c060;
+  --text: #e0e0e0; --sub: #888; --green: #4caf84; --red: #e94560;
+  --border: #2a2a45; --radius: 12px; --shadow: 0 4px 24px rgba(0,0,0,0.4);
+}
+* { margin:0; padding:0; box-sizing:border-box; }
+body { font-family: -apple-system, "PingFang SC", "Microsoft YaHei", sans-serif; background: var(--bg); color: var(--text); min-height: 100vh; -webkit-tap-highlight-color: transparent; overflow-x: hidden; }
+.app { max-width: 720px; margin: 0 auto; padding: 16px; padding-bottom: 80px; }
+
+.header { text-align: center; padding: 20px 0 12px; }
+.header h1 { font-size: 22px; color: var(--gold); letter-spacing: 1px; }
+.header .ver { font-size: 11px; color: var(--sub); margin-top: 2px; }
+.sync-info { font-size: 10px; color: var(--sub); margin-top: 4px; }
+.sync-info .live { color: var(--green); }
+.sync-info .offline-dot { color: var(--red); }
+
+/* Offline bar */
+.offline-bar {
+  display: none; text-align: center; padding: 6px; background: rgba(233,69,96,.15);
+  border: 1px solid rgba(233,69,96,.3); border-radius: 8px; margin-bottom: 8px;
+  font-size: 11px; color: var(--red);
+}
+.offline-bar.show { display: block; animation: slideDown .3s ease; }
+@keyframes slideDown { from { opacity:0; transform:translateY(-10px) } to { opacity:1; transform:translateY(0) } }
+
+/* Install banner */
+.install-banner {
+  display: none; align-items: center; gap: 10px; padding: 10px 14px; background: var(--card);
+  border: 1px solid var(--gold); border-radius: var(--radius); margin-bottom: 12px; font-size: 12px;
+}
+.install-banner.show { display: flex; animation: slideDown .3s ease; }
+.install-banner .btn-install { background: var(--gold); color: #000; border: none; padding: 6px 14px; border-radius: 8px; font-size: 12px; font-weight: 600; cursor: pointer; white-space: nowrap; transition: transform .15s; }
+.install-banner .btn-install:active { transform: scale(.95); }
+.install-banner .btn-dismiss { background: none; border: none; color: var(--sub); font-size: 18px; cursor: pointer; padding: 0 4px; }
+
+/* Tabs */
+.tabs { display: flex; gap: 6px; margin: 12px 0; background: var(--card); border-radius: var(--radius); padding: 4px; position: sticky; top: 8px; z-index: 10; }
+.tab { flex: 1; text-align: center; padding: 10px 4px; border-radius: 10px; font-size: 12px; cursor: pointer; color: var(--sub); transition: all .2s; border: none; background: none; }
+.tab:active { transform: scale(.95); }
+.tab.active { background: var(--accent); color: #fff; font-weight: 600; }
+.tab .icon { font-size: 18px; display: block; margin-bottom: 2px; }
+
+/* Content area */
+.tab-content { transition: opacity .18s ease; }
+.tab-content.loading { opacity: 0.4; pointer-events: none; }
+
+/* Card */
+.card { background: var(--card); border-radius: var(--radius); padding: 16px; margin-bottom: 12px; border: 1px solid var(--border); }
+.card h3 { font-size: 15px; color: var(--gold); margin-bottom: 10px; display: flex; align-items: center; gap: 8px; }
+.card h4 { font-size: 13px; color: #ccc; margin: 10px 0 6px; }
+
+/* Stats */
+.stats { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; }
+.stat { background: var(--card); border-radius: var(--radius); padding: 14px; text-align: center; border: 1px solid var(--border); }
+.stat .num { font-size: 28px; font-weight: 700; color: var(--gold); }
+.stat .label { font-size: 11px; color: var(--sub); margin-top: 4px; }
+
+/* Buttons */
+.btn { display: block; width: 100%; padding: 12px; border-radius: 10px; border: none; font-size: 14px; cursor: pointer; font-weight: 600; margin: 6px 0; transition: all .2s; }
+.btn:active { transform: scale(.97); }
+.btn-primary { background: var(--accent); color: #fff; }
+.btn-outline { background: transparent; border: 1.5px solid var(--border); color: var(--text); }
+.btn-sm { width: auto; display: inline-block; padding: 6px 14px; font-size: 12px; border-radius: 8px; }
+.btn-refresh { display: inline-flex; align-items: center; gap: 4px; background: rgba(76,175,132,.15); border: 1px solid var(--green); color: var(--green); }
+
+/* Search */
+.search-wrap { position: relative; margin-bottom: 12px; }
+.search-wrap input { width: 100%; padding: 10px 14px 10px 36px; border-radius: 10px; border: 1px solid var(--border); background: var(--card); color: var(--text); font-size: 13px; transition: border .2s; }
+.search-wrap input:focus { outline: none; border-color: var(--gold); }
+.search-wrap .search-icon { position: absolute; left: 12px; top: 50%; transform: translateY(-50%); font-size: 14px; color: var(--sub); }
+.search-wrap .btn-clear { position: absolute; right: 8px; top: 50%; transform: translateY(-50%); background: none; border: none; color: var(--sub); font-size: 16px; cursor: pointer; display: none; }
+.search-wrap .btn-clear.show { display: block; }
+.search-badge { font-size: 11px; color: var(--sub); margin-bottom: 4px; }
+
+mark.search-hit { background: rgba(240,192,96,.35); color: var(--gold); padding: 1px 2px; border-radius: 2px; }
+
+/* Collapse */
+.collapse-section { margin-bottom: 1px; }
+.collapse-header { display: flex; align-items: center; justify-content: space-between; padding: 12px 14px; background: var(--card); border: 1px solid var(--border); border-radius: var(--radius); cursor: pointer; user-select: none; transition: background .15s; }
+.collapse-header:hover { background: rgba(255,255,255,.03); }
+.collapse-header:active { transform: scale(.99); }
+.collapse-header .collapse-title { font-size: 14px; font-weight: 600; display: flex; align-items: center; gap: 8px; }
+.collapse-header .collapse-meta { font-size: 11px; color: var(--sub); }
+.collapse-header .arrow { font-size: 12px; color: var(--sub); transition: transform .25s; }
+.collapse-header .arrow.open { transform: rotate(180deg); }
+.collapse-body { overflow: hidden; max-height: 0; transition: max-height .3s ease; }
+.collapse-body.open { max-height: 3000px; }
+
+/* Workflow step */
+.step { display: flex; align-items: flex-start; gap: 12px; padding: 12px 0; border-bottom: 1px solid var(--border); }
+.step:last-child { border-bottom: none; }
+.step-num { width: 28px; height: 28px; border-radius: 50%; background: var(--border); display: flex; align-items: center; justify-content: center; font-size: 12px; font-weight: 700; flex-shrink: 0; }
+.step-info { flex: 1; }
+.step-info .name { font-size: 14px; font-weight: 600; }
+.step-info .desc { font-size: 11px; color: var(--sub); margin-top: 2px; }
+
+/* Check items */
+.check-item { display: flex; align-items: center; gap: 10px; padding: 8px 0; border-bottom: 1px solid rgba(255,255,255,0.05); cursor: pointer; transition: background .1s; }
+.check-item:active { background: rgba(255,255,255,.02); }
+.check-item:last-child { border-bottom: none; }
+.check-box { width: 22px; height: 22px; border-radius: 6px; border: 2px solid var(--border); flex-shrink: 0; display: flex; align-items: center; justify-content: center; font-size: 12px; transition: all .2s; }
+.check-box.checked { background: var(--green); border-color: var(--green); color: #fff; animation: pop .25s ease; }
+@keyframes pop { 0% { transform:scale(1) } 50% { transform:scale(1.25) } 100% { transform:scale(1) } }
+.check-label { font-size: 13px; }
+.check-cat { font-size: 11px; color: var(--accent); font-weight: 700; margin: 14px 0 4px; text-transform: uppercase; letter-spacing: 1px; }
+
+/* Rule items */
+.rule-item { padding: 8px 0; border-bottom: 1px solid rgba(255,255,255,0.04); font-size: 13px; line-height: 1.6; }
+.rule-item:last-child { border-bottom: none; }
+.rule-tag { display: inline-block; padding: 2px 8px; border-radius: 4px; font-size: 10px; margin-right: 4px; }
+.tag-red { background: rgba(233,69,96,.2); color: var(--red); }
+.tag-gold { background: rgba(240,192,96,.2); color: var(--gold); }
+.tag-green { background: rgba(76,175,132,.2); color: var(--green); }
+
+/* Hotlist */
+.hotlist-item { display: flex; align-items: center; gap: 10px; padding: 10px 0; border-bottom: 1px solid rgba(255,255,255,0.05); transition: background .15s; }
+.hotlist-item:hover { background: rgba(255,255,255,.02); }
+.hotlist-item:active { background: rgba(255,255,255,.04); }
+.hotlist-item:last-child { border-bottom: none; }
+.hot-rank { width: 24px; height: 24px; border-radius: 6px; display: flex; align-items: center; justify-content: center; font-size: 11px; font-weight: 800; flex-shrink: 0; }
+.hot-rank.r1 { background: linear-gradient(135deg,#ff6b6b,#e94560); color:#fff; }
+.hot-rank.r2 { background: linear-gradient(135deg,#f0c060,#e9a820); color:#000; }
+.hot-rank.r3 { background: linear-gradient(135deg,#c084fc,#7c3aed); color:#fff; }
+.hot-rank.rn { background: var(--border); color: var(--sub); }
+.hot-info { flex:1; min-width:0; }
+.hot-info .hot-title { font-size:13px; font-weight:600; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }
+.hot-info .hot-meta { font-size:10px; color:var(--sub); margin-top:1px; }
+.hot-info .hot-highlight { font-size:10px; color:var(--gold); margin-top:1px; }
+.hot-heat { display:flex; align-items:center; gap:4px; flex-shrink:0; }
+.hot-heat-bar { width:50px; height:4px; background:var(--border); border-radius:2px; overflow:hidden; }
+.hot-heat-fill { height:100%; border-radius:2px; transition: width .6s cubic-bezier(.4,0,.2,1); }
+.hot-heat-fill.super { background:linear-gradient(90deg,#ff6b6b,#e94560); }
+.hot-heat-fill.high { background:linear-gradient(90deg,#f0c060,#e9a820); }
+.hot-heat-fill.mid { background:linear-gradient(90deg,#c084fc,#7c3aed); }
+.hot-heat-fill.low { background:var(--green); }
+.hot-num { font-size:12px; font-weight:700; color:var(--gold); width:30px; text-align:right; }
+
+/* Hook trend */
+.hook-trend-item { display:flex; align-items:center; gap:8px; padding:8px 0; border-bottom:1px solid rgba(255,255,255,0.04); transition: background .15s; }
+.hook-trend-item:hover { background: rgba(255,255,255,.02); }
+.hook-trend-item:active { background: rgba(255,255,255,.04); }
+.hook-trend-item:last-child { border-bottom:none; }
+.hook-trend-item.hook-expanded { background: rgba(240,192,96,.06); }
+.hook-trend-icon { font-size:20px; width:28px; text-align:center; flex-shrink:0; }
+.hook-trend-info { flex:1; min-width:0; }
+.hook-trend-name { font-size:13px; font-weight:600; }
+.hook-trend-desc { font-size:10px; color:var(--sub); }
+.hook-trend-theme { font-size:10px; color:var(--gold); margin-top:1px; }
+.hook-trend-rate { font-size:16px; font-weight:800; color:var(--gold); flex-shrink:0; width:42px; text-align:right; }
+
+/* Theme tags */
+.theme-tags { display:flex; flex-wrap:wrap; gap:6px; }
+.theme-tag { padding:5px 12px; border-radius:16px; font-size:11px; font-weight:600; transition:transform .15s; }
+.theme-tag:active { transform:scale(.93); }
+.theme-tag.t-fire { background:rgba(233,69,96,.25); color:#ff6b6b; border:1px solid rgba(233,69,96,.4); }
+.theme-tag.t-hot { background:rgba(240,192,96,.2); color:var(--gold); border:1px solid rgba(240,192,96,.3); }
+.theme-tag.t-warm { background:rgba(76,175,132,.15); color:var(--green); border:1px solid rgba(76,175,132,.3); }
+
+/* Progress */
+.progress-bar { height: 6px; background: var(--border); border-radius: 3px; margin: 8px 0; overflow: hidden; }
+.progress-fill { height: 100%; background: var(--green); border-radius: 3px; transition: width .6s cubic-bezier(.4,0,.2,1); }
+
+/* Skeleton */
+.skeleton { background: linear-gradient(90deg, var(--border) 25%, rgba(255,255,255,.05) 50%, var(--border) 75%); background-size: 200% 100%; animation: shimmer 1.5s infinite; border-radius: 6px; }
+.skeleton-line { height: 14px; margin: 10px 0; }
+.skeleton-line.short { width: 60%; }
+@keyframes shimmer { 0% { background-position: 200% 0 } 100% { background-position: -200% 0 } }
+
+/* Toast */
+.toast { position: fixed; bottom: 90px; left: 50%; transform: translateX(-50%); background: var(--green); color: #fff; padding: 10px 24px; border-radius: 20px; font-size: 13px; z-index: 100; opacity: 0; transition: opacity .25s, transform .25s; pointer-events: none; transform: translateX(-50%) translateY(8px); }
+.toast.show { opacity: 1; transform: translateX(-50%) translateY(0); }
+
+/* Nav */
+.nav { position: fixed; bottom: 0; left: 0; right: 0; background: var(--card); border-top: 1px solid var(--border); display: flex; padding: 6px 0 env(safe-area-inset-bottom, 8px); z-index: 20; }
+.nav-btn { flex: 1; text-align: center; padding: 6px; color: var(--sub); font-size: 10px; background: none; border: none; cursor: pointer; }
+.nav-btn:active { transform: scale(.93); }
+.nav-btn.active { color: var(--accent); }
+.nav-btn .icon { font-size: 20px; display: block; }
+
+@media (min-width: 600px) {
+  .app { padding: 24px; padding-bottom: 40px; }
+  .header h1 { font-size: 26px; }
+  .tabs { gap: 8px; }
+  .tab { font-size: 13px; padding: 12px 8px; }
+  .nav { display: none; }
+}
+
+/* Modal */
+.modal-overlay { position: fixed; inset: 0; background: rgba(0,0,0,0.7); z-index: 50; display: flex; align-items: center; justify-content: center; animation: fadeIn .2s ease; }
+@keyframes fadeIn { from { opacity:0 } to { opacity:1 } }
+.modal { background: var(--card); border-radius: var(--radius); padding: 20px; width: 90%; max-width: 400px; max-height: 80vh; overflow-y: auto; }
+.modal h3 { color: var(--gold); margin-bottom: 12px; }
+.modal input, .modal textarea, .modal select { width: 100%; padding: 10px; margin: 6px 0; border-radius: 8px; border: 1px solid var(--border); background: var(--bg); color: var(--text); font-size: 13px; }
+.modal textarea { min-height: 80px; resize: vertical; margin-bottom: 8px; }
+.modal .hint { font-size: 11px; color: var(--sub); margin: 4px 0; }
+
+/* Trending tags */
+.trend-tag { display: inline-block; padding: 3px 10px; border-radius: 12px; font-size: 10px; margin: 2px 4px 2px 0; }
+.trend-hot { background: rgba(233,69,96,.2); color: var(--red); }
+.trend-new { background: rgba(240,192,96,.2); color: var(--gold); }
+.trend-up { background: rgba(76,175,132,.2); color: var(--green); }
+.trend-score { font-size: 22px; font-weight: 700; color: var(--gold); }
+</style>
+</head>
+<body>
+
+<div id="offline-bar" class="offline-bar">⬤ 离线模式 — 显示缓存数据</div>
+
+<div class="app" id="app">
+  <div class="header">
+    <h1>编剧工作台</h1>
+    <div class="ver">v<span id="data-version">4.0</span> · 短剧创作专用</div>
+    <div class="sync-info" id="sync-info">加载中...</div>
+  </div>
+
+  <div id="install-banner" class="install-banner">
+    <span>📱 添加到主屏幕，随时查看创作规则</span>
+    <button class="btn-install" id="btn-install">立即添加</button>
+    <button class="btn-dismiss" id="btn-dismiss-install">&times;</button>
+  </div>
+
+  <div class="tabs" id="tabs">
+    <button class="tab active" data-tab="dash"><span class="icon">🏠</span>工作台</button>
+    <button class="tab" data-tab="flow"><span class="icon">📋</span>工作流</button>
+    <button class="tab" data-tab="rules"><span class="icon">📖</span>规则库</button>
+    <button class="tab" data-tab="check"><span class="icon">✅</span>自检</button>
+  </div>
+
+  <div class="tab-content" id="tab-content"></div>
+</div>
+
+<div class="toast" id="toast"></div>
+
+<div class="nav" id="nav">
+  <button class="nav-btn active" data-tab="dash"><span class="icon">🏠</span>工作台</button>
+  <button class="nav-btn" data-tab="flow"><span class="icon">📋</span>工作流</button>
+  <button class="nav-btn" data-tab="rules"><span class="icon">📖</span>规则</button>
+  <button class="nav-btn" data-tab="check"><span class="icon">✅</span>自检</button>
+</div>
+
+<script>
+// ==================== Utilities ====================
+function $(id) { return document.getElementById(id); }
+function debounce(fn, ms) { let t; return (...a) => { clearTimeout(t); t = setTimeout(() => fn(...a), ms); }; }
+
+// ==================== Global State ====================
+let DATA = null;
+let currentTab = 'dash';
+let checkState = {};
+let projects = JSON.parse(localStorage.getItem('scripter_projects') || '[]');
+let activeProject = localStorage.getItem('scripter_active') || '';
+let ruleSearchQuery = '';
+let collapsedSections = {};
+let deferredPrompt = null;
+const savedChecks = localStorage.getItem('scripter_checks');
+if (savedChecks) checkState = JSON.parse(savedChecks);
+
+const RULE_SECTIONS = [
+  {key:'redlines', title:'🚫 写作红线（9条·零容忍）', tag:'tag-red'},
+  {key:'iron', title:'⚡ 内容铁律（3条·每集强制）', tag:'tag-gold'},
+  {key:'emotion', title:'🏦 情绪银行机制', tag:'tag-gold'},
+  {key:'hooks', title:'🪝 钩子工程学', tag:'tag-green'},
+  {key:'rhythm', title:'🎵 节奏工程学', tag:'tag-green'},
+  {key:'game', title:'🎮 游戏化系统设计', tag:'tag-gold'},
+  {key:'character', title:'👤 人物驱动设计', tag:'tag-gold'},
+  {key:'format', title:'📄 剧本格式规范', tag:'tag-green'}
+];
+
+const GITHUB_RAW = 'https://raw.githubusercontent.com/8nk9567f6c-prog/script-workstation/main/data.json';
+
+// ==================== Data Loading ====================
+async function loadData(retries = 0) {
+  try {
+    const resp = await fetch('data.json?' + Date.now());
+    if (resp.ok) {
+      DATA = await resp.json();
+      $('data-version').textContent = DATA.version;
+      $('sync-info').innerHTML = '<span class="live">● 已联动</span> · 更新于 ' + DATA.updated;
+      localStorage.setItem('scripter_data_cache', JSON.stringify(DATA));
+      return true;
+    }
+  } catch(e) {}
+  if (retries < 2) {
+    await new Promise(r => setTimeout(r, 1000 * (retries + 1)));
+    return loadData(retries + 1);
+  }
+  const cached = localStorage.getItem('scripter_data_cache');
+  if (cached) {
+    DATA = JSON.parse(cached);
+    $('sync-info').innerHTML = '<span style="color:#f0a060">◐ 离线缓存</span> · v' + DATA.version;
+    return true;
+  }
+  $('sync-info').textContent = '⚠ 数据加载失败，请检查 data.json';
+  return false;
+}
+
+// ==================== GitHub Sync ====================
+async function refreshData() {
+  const btn = $('btn-refresh');
+  if (!btn) return;
+  btn.disabled = true;
+  btn.textContent = '⏳ 正在从 GitHub 拉取...';
+  try {
+    const resp = await fetch(GITHUB_RAW + '?t=' + Date.now());
+    if (resp.ok) {
+      const remote = await resp.json();
+      const localVer = DATA ? DATA.version : '';
+      DATA = remote;
+      $('data-version').textContent = DATA.version;
+      $('sync-info').innerHTML = '<span class="live">● 已联动（GitHub）</span> · 更新于 ' + DATA.updated;
+      localStorage.setItem('scripter_data_cache', JSON.stringify(DATA));
+      render();
+      toast(remote.version !== localVer ? '已更新至 v' + remote.version + ' ✓' : '已是最新版本 v' + remote.version + ' ✓');
+      btn.disabled = false;
+      btn.textContent = '🔄 从 GitHub 拉取最新数据';
+      return;
+    }
+  } catch(e) {}
+  try {
+    const resp = await fetch('data.json?' + Date.now());
+    if (resp.ok) {
+      DATA = await resp.json();
+      $('data-version').textContent = DATA.version;
+      $('sync-info').innerHTML = '<span class="live">● 已联动</span> · 更新于 ' + DATA.updated;
+      localStorage.setItem('scripter_data_cache', JSON.stringify(DATA));
+      render();
+      toast('GitHub 连接失败，已从本地刷新 ✓');
+      btn.disabled = false;
+      btn.textContent = '🔄 从 GitHub 拉取最新数据';
+      return;
+    }
+  } catch(e) {}
+  btn.disabled = false;
+  btn.textContent = '🔄 从 GitHub 拉取最新数据';
+  toast('刷新失败，请检查网络 ⚠');
+}
+
+// ==================== Toast ====================
+function toast(msg) {
+  const t = $('toast');
+  t.textContent = msg;
+  t.classList.add('show');
+  setTimeout(() => t.classList.remove('show'), 2000);
+}
+
+// ==================== Tab Switching ====================
+function switchTab(tab) {
+  if (currentTab === tab) { render(); return; }
+  currentTab = tab;
+  document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
+  document.querySelectorAll('.nav-btn').forEach(b => b.classList.remove('active'));
+  document.querySelectorAll(`[data-tab="${tab}"]`).forEach(el => el.classList.add('active'));
+  const content = $('tab-content');
+  content.classList.add('loading');
+  requestAnimationFrame(() => {
+    render();
+    content.classList.remove('loading');
+  });
+  window.scrollTo(0, 0);
+}
+
+// ==================== Render ====================
+function render() {
+  const c = $('tab-content');
+  if (!DATA) {
+    c.innerHTML = `<div class="card" style="text-align:center">
+      <div class="skeleton skeleton-line"></div>
+      <div class="skeleton skeleton-line short"></div>
+      <p style="margin:12px 0;font-size:13px;color:var(--sub)">数据加载中，请稍候...</p>
+      <button class="btn btn-outline btn-sm" id="btn-retry-load">🔄 重试加载</button>
+    </div>`;
+    return;
+  }
+  let html = '';
+  switch(currentTab) {
+    case 'dash': html = renderDash(); break;
+    case 'flow': html = renderFlow(); break;
+    case 'rules': html = renderRules(); break;
+    case 'check': html = renderCheck(); break;
+  }
+  c.innerHTML = html;
+  bindTabEvents();
+}
+
+// ==================== Dashboard ====================
+function renderDash() {
+  const p = activeProject ? projects.find(x => x.name === activeProject) : null;
+  let html = '';
+
+  if (p) {
+    html += `<div class="card"><h3>📁 ${escapeHtml(p.name)}</h3>
+      <div style="font-size:12px;color:var(--sub);margin-bottom:8px">${escapeHtml(p.desc || '暂无简介')} · ${p.episodes || 72}集 · ${escapeHtml(p.platform || '未设定')}</div>
+      <div class="progress-bar"><div class="progress-fill" id="proj-progress" style="width:0%" data-target="${p.progress || 0}"></div></div>
+      <div style="font-size:11px;color:var(--sub)">进度 ${p.progress || 0}% · 已完成 ${p.doneEp || 0}/${p.episodes || 72} 集</div>
+      <button class="btn btn-outline btn-sm" style="margin-top:8px" id="btn-switch-project">切换项目</button></div>`;
+  } else {
+    html += `<div class="card" style="text-align:center">
+      <div style="font-size:48px;margin-bottom:8px">🎬</div>
+      <h3>还没有项目</h3>
+      <p style="font-size:13px;color:var(--sub);margin:8px 0">创建你的第一个短剧项目</p>
+      <button class="btn btn-primary" id="btn-new-project">+ 创建新项目</button></div>`;
+  }
+
+  html += `<div class="stats">
+    <div class="stat"><div class="num">${projects.length}</div><div class="label">项目数</div></div>
+    <div class="stat"><div class="num">42</div><div class="label">核心规则</div></div>
+    <div class="stat"><div class="num">28</div><div class="label">自检项</div></div>
+    <div class="stat"><div class="num">9</div><div class="label">写作红线</div></div>
+  </div>`;
+
+  html += `<div class="card"><h3>⚡ 核心信条</h3>
+    <div style="font-size:12px;color:var(--sub);line-height:1.8">
+      ${escapeHtml(DATA.core.motto)}<br>
+      ${escapeHtml(DATA.core.newMotto)}<br>
+      爆款公式：${escapeHtml(DATA.core.formula)}<br>
+      ${escapeHtml(DATA.core.platform)}<br>
+      ${escapeHtml(DATA.core.audience)}
+    </div></div>`;
+
+  // Hotlist — real-time trending leaderboard (clickable for details)
+  if (DATA.hotlist && DATA.hotlist.length) {
+    html += `<div class="card"><h3>🔥 红果+抖音 SS+ 实时热力榜</h3><div style="font-size:10px;color:var(--sub);margin-bottom:6px">👆 点击剧名查看完整剧本信息</div>`;
+    DATA.hotlist.forEach((h, i) => {
+      const rankCls = h.rank === 1 ? 'r1' : h.rank === 2 ? 'r2' : h.rank === 3 ? 'r3' : 'rn';
+      const heatCls = h.heat >= 95 ? 'super' : h.heat >= 85 ? 'high' : h.heat >= 75 ? 'mid' : 'low';
+      html += `<div class="hotlist-item" data-hotlist-idx="${i}" style="cursor:pointer">
+        <div class="hot-rank ${rankCls}">${h.rank}</div>
+        <div class="hot-info">
+          <div class="hot-title" title="${escapeHtml(h.title)}">${escapeHtml(h.title)}</div>
+          <div class="hot-meta">${escapeHtml(h.type)} · ${h.episodes}集 · 钩子:${escapeHtml(h.hook)}</div>
+          <div class="hot-highlight">💡 ${escapeHtml(h.highlight)}</div>
+        </div>
+        <div class="hot-heat">
+          <div class="hot-heat-bar"><div class="hot-heat-fill ${heatCls}" style="width:0%" data-target="${h.heat}"></div></div>
+          <span class="hot-num">${h.heat}°</span>
+        </div>
+      </div>`;
+    });
+    html += `<div style="font-size:10px;color:var(--sub);margin-top:8px">📊 基于红果+抖音 SS/S+ 级爆款数据 · 实时更新</div></div>`;
+  }
+
+  // Theme tags
+  if (DATA.hotThemeTags && DATA.hotThemeTags.length) {
+    html += `<div class="card"><h3>🏷️ 火爆剧主题风向</h3><div class="theme-tags">`;
+    DATA.hotThemeTags.forEach(t => {
+      const cls = t.heat >= 90 ? 't-fire' : t.heat >= 80 ? 't-hot' : 't-warm';
+      html += `<span class="theme-tag ${cls}">${escapeHtml(t.tag)} ${t.heat}°</span>`;
+    });
+    html += `</div></div>`;
+  }
+
+  // Hook trends — expandable details
+  if (DATA.hookTrends && DATA.hookTrends.length) {
+    html += `<div class="card"><h3>🪝 SS+ 级爆款钩子风向</h3><div style="font-size:10px;color:var(--sub);margin-bottom:6px">👆 点击展开详细分析</div>`;
+    DATA.hookTrends.forEach((h, i) => {
+      html += `<div class="hook-trend-item" data-hook-idx="${i}" style="cursor:pointer">
+        <span class="hook-trend-icon">${h.icon}</span>
+        <div class="hook-trend-info">
+          <span class="hook-trend-name">${escapeHtml(h.hook)}</span>
+          <span class="hook-trend-desc"> — ${escapeHtml(h.desc)}</span>
+          <div class="hook-trend-theme">🎬 ${escapeHtml(h.theme)}</div>
+        </div>
+        <span class="hook-trend-rate">${h.rate}%</span>
+      </div>
+      <div class="hook-detail" id="hook-detail-${i}" style="display:none;padding:10px 14px;margin:0 0 4px 36px;background:rgba(255,255,255,0.02);border-radius:8px;font-size:11px;line-height:1.7;color:var(--sub);border-left:2px solid var(--border)">
+        <div style="color:var(--gold);font-weight:600;margin-bottom:6px">📖 适用场景</div>
+        <div style="margin-bottom:8px">${escapeHtml(h.scenarios || '')}</div>
+        <div style="color:var(--accent);font-weight:600;margin-bottom:4px">📍 最佳位置</div>
+        <div style="margin-bottom:8px">${escapeHtml(h.placement || '')}</div>
+        <div style="color:var(--green);font-weight:600;margin-bottom:4px">🎬 爆款案例</div>
+        <div style="margin-bottom:8px">${escapeHtml(h.example || '')}</div>
+        <div style="color:#c084fc;font-weight:600;margin-bottom:4px">🧠 观众心理</div>
+        <div>${escapeHtml(h.psychology || '')}</div>
+      </div>`;
+    });
+    html += `<div style="font-size:10px;color:var(--sub);margin-top:6px">📈 占比基于 2026上半年红果+抖音 SS/S+ 级爆款钩子类型统计</div></div>`;
+  }
+
+  // Trending insights block (keep for backward compat)
+  if (DATA.trending && DATA.trending.length) {
+    html += `<div class="card"><h3>📡 市场动态</h3>`;
+    DATA.trending.forEach(t => {
+      const cls = t.heat >= 80 ? 'trend-hot' : t.heat >= 50 ? 'trend-new' : 'trend-up';
+      html += `<div style="display:flex;align-items:center;gap:8px;padding:6px 0;border-bottom:1px solid rgba(255,255,255,0.04);font-size:12px">
+        <span class="trend-tag ${cls}">${t.type || '趋势'}</span>
+        <span style="flex:1">${escapeHtml(t.label)}</span>
+        ${t.heat ? `<span class="trend-score">${t.heat}°</span>` : ''}
+      </div>`;
+    });
+    html += `<div style="font-size:10px;color:var(--sub);margin-top:8px">数据更新于 ${DATA.trending_updated || DATA.updated}</div></div>`;
+  }
+
+  html += `<div class="card"><h3>🔧 工具</h3>
+    <button id="btn-refresh" class="btn btn-refresh btn-sm">🔄 从 GitHub 拉取最新数据</button>
+    <span style="font-size:11px;color:var(--sub);margin-left:8px">绕过缓存，直连 GitHub</span></div>`;
+
+  html += `<div class="card"><h3>📋 工作流速览</h3>`;
+  DATA.workflow.forEach((w, i) => {
+    html += `<div style="display:flex;align-items:center;gap:10px;padding:8px 0;font-size:13px;border-bottom:1px solid rgba(255,255,255,0.04)">
+      <span style="font-size:18px">${w.icon}</span>
+      <div><strong>${escapeHtml(w.cmd)}</strong><br><span style="font-size:11px;color:var(--sub)">${escapeHtml(w.desc)}</span></div></div>`;
+  });
+  html += `</div>`;
+  return html;
+}
+
+// ==================== Workflow ====================
+function renderFlow() {
+  let html = '<div class="card"><h3>📋 推荐工作流顺序</h3>';
+  DATA.workflow.forEach((w, i) => {
+    html += `<div class="step">
+      <div class="step-num">${i+1}</div>
+      <div class="step-info">
+        <div class="name">${w.icon} ${escapeHtml(w.cmd)}</div>
+        <div class="desc">${escapeHtml(w.desc)}</div>
+      </div></div>`;
+  });
+  html += '</div>';
+
+  html += `<div class="card"><h3>🔴 产出纪律</h3>
+    <div style="font-size:12px;color:var(--sub);line-height:1.8;white-space:pre-wrap"><strong>开始前：</strong>
+${escapeHtml(DATA.discipline.preOutput)}
+
+<strong>完成后：</strong>
+${escapeHtml(DATA.discipline.postOutput)}
+
+<strong>正文与自检分离：</strong>
+正文→项目根目录（顺序编号，纯内容）
+自检→自检/自检记录.docx（累计追加）</div></div>`;
+
+  if (DATA.rules.saveTheCat) {
+    html += `<div class="card"><h3>🎬 Save the Cat! 节拍表</h3>
+      <div style="font-size:12px;line-height:1.7;overflow-x:auto">
+      <table style="width:100%;border-collapse:collapse;font-size:11px">
+      <tr style="color:var(--gold)"><th style="padding:4px;text-align:left">#</th><th>节拍</th><th>72集</th><th>45集</th><th>核心任务</th></tr>`;
+    DATA.rules.saveTheCat.forEach(b => {
+      html += `<tr style="border-bottom:1px solid rgba(255,255,255,0.05)">
+        <td style="padding:4px">${b.beat}</td><td>${escapeHtml(b.name)}</td><td>${escapeHtml(b.ep72)}</td><td>${escapeHtml(b.ep45)}</td><td style="color:var(--sub)">${escapeHtml(b.task)}</td></tr>`;
+    });
+    html += '</table></div></div>';
+  }
+  return html;
+}
+
+// ==================== Rules ====================
+function renderRules() {
+  let html = '';
+
+  // Search bar
+  html += `<div class="search-wrap">
+    <span class="search-icon">🔍</span>
+    <input type="text" id="rule-search" placeholder="搜索42条规则...（标题/描述/分类）" value="${escapeHtml(ruleSearchQuery)}" autocomplete="off">
+    <button class="btn-clear ${ruleSearchQuery ? 'show' : ''}" id="btn-clear-search">✕</button>
+  </div>`;
+
+  if (ruleSearchQuery) {
+    html += `<div class="search-badge">搜索「${escapeHtml(ruleSearchQuery)}」：</div>`;
+  }
+
+  html += `<div style="margin-bottom:8px;text-align:right">
+    <button class="btn btn-outline btn-sm" id="btn-expand-all">📖 全部展开</button>
+    <button class="btn btn-outline btn-sm" id="btn-collapse-all">📕 全部折叠</button>
+  </div>`;
+
+  let totalMatch = 0;
+
+  RULE_SECTIONS.forEach(sec => {
+    let rules = DATA.rules[sec.key];
+    if (!rules || !rules.length) return;
+
+    // Filter by search
+    const q = ruleSearchQuery.toLowerCase().trim();
+    let filteredRules = rules;
+    if (q) {
+      filteredRules = rules.filter(r =>
+        r.title.toLowerCase().includes(q) ||
+        r.desc.toLowerCase().includes(q) ||
+        sec.title.toLowerCase().includes(q)
+      );
+    }
+
+    const matchCount = filteredRules.length;
+    if (matchCount > 0) totalMatch += matchCount;
+
+    // Auto-expand when searching, otherwise use saved state
+    const isOpen = q ? true : (collapsedSections[sec.key] !== false);
+
+    html += `<div class="collapse-section">
+      <div class="collapse-header" data-section="${sec.key}">
+        <span class="collapse-title"><span class="rule-tag ${sec.tag}">${matchCount}条</span> ${sec.title}</span>
+        <span class="arrow ${isOpen ? 'open' : ''}">▼</span>
+      </div>
+      <div class="collapse-body ${isOpen ? 'open' : ''}">`;
+
+    if (matchCount === 0) {
+      html += `<div style="padding:12px;color:var(--sub);font-size:12px">无匹配结果</div>`;
+    } else {
+      filteredRules.forEach(r => {
+        let title = escapeHtml(r.title);
+        let desc = escapeHtml(r.desc);
+        if (q) {
+          const re = new RegExp(`(${q.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')})`, 'gi');
+          title = title.replace(re, '<mark class="search-hit">$1</mark>');
+          desc = desc.replace(re, '<mark class="search-hit">$1</mark>');
+        }
+        html += `<div class="rule-item">
+          <span class="rule-tag ${sec.tag}">${r.n}</span>
+          <strong>${title}</strong>
+          <div style="color:var(--sub);font-size:11px;margin-top:2px">${desc}</div>
+        </div>`;
+      });
+    }
+
+    html += `</div></div>`;
+  });
+
+  if (ruleSearchQuery && totalMatch === 0) {
+    html += `<div class="card" style="text-align:center;padding:24px">
+      <div style="font-size:32px;margin-bottom:8px">🔎</div>
+      <p style="color:var(--sub)">没有找到匹配「${escapeHtml(ruleSearchQuery)}」的规则</p></div>`;
+  }
+
+  return html;
+}
+
+// ==================== Check ====================
+function renderCheck() {
+  const allItems = [];
+  DATA.checklist.forEach(c => c.items.forEach(i => allItems.push(i)));
+  const total = allItems.length;
+  let checked = 0;
+  allItems.forEach(i => { if (checkState[i]) checked++; });
+  const pct = total ? Math.round(checked / total * 100) : 0;
+
+  let html = `<div class="card"><h3>✅ 自检清单 (${checked}/${total})</h3>
+    <div class="progress-bar"><div class="progress-fill" id="check-progress" style="width:0%" data-target="${pct}"></div></div><br>`;
+
+  DATA.checklist.forEach(cat => {
+    html += `<div class="check-cat">${escapeHtml(cat.cat)}</div>`;
+    cat.items.forEach(item => {
+      const isChecked = checkState[item];
+      html += `<div class="check-item" data-item="${escapeHtml(item)}">
+        <div class="check-box${isChecked ? ' checked' : ''}">${isChecked ? '✓' : ''}</div>
+        <span class="check-label">${escapeHtml(item)}</span>
+      </div>`;
+    });
+  });
+
+  html += `<br>
+    <button class="btn btn-outline btn-sm" id="btn-reset-checks">🔄 重置全部</button>
+    <button class="btn btn-primary btn-sm" style="margin-left:8px" id="btn-save-checks">💾 保存进度</button></div>`;
+
+  html += `<div class="card"><h3>⚠️ 输出前最后一关</h3>
+    <div style="font-size:12px;line-height:2">`;
+  DATA.discipline.finalCheck.forEach((item, i) => {
+    html += `<div class="check-item"><div class="check-box" style="background:var(--border);border-color:var(--green)">✓</div> <span>${escapeHtml(item)}</span></div>`;
+  });
+  html += `</div></div>`;
+  return html;
+}
+
+// ==================== Escape HTML ====================
+function escapeHtml(str) {
+  if (!str) return '';
+  const div = document.createElement('div');
+  div.textContent = str;
+  return div.innerHTML;
+}
+
+// ==================== Tab-specific Events ====================
+function bindTabEvents() {
+  // Rules: search
+  const searchInput = document.getElementById('rule-search');
+  if (searchInput) {
+    searchInput.focus = searchInput.focus; // no-op
+    searchInput.addEventListener('input', debounce(function() {
+      ruleSearchQuery = this.value;
+      render();
+    }, 200));
+  }
+  const btnClear = document.getElementById('btn-clear-search');
+  if (btnClear) {
+    btnClear.addEventListener('click', function() {
+      ruleSearchQuery = '';
+      render();
+    });
+  }
+  const btnExpand = document.getElementById('btn-expand-all');
+  if (btnExpand) {
+    btnExpand.addEventListener('click', function() {
+      Object.keys(collapsedSections).forEach(k => delete collapsedSections[k]);
+      render();
+    });
+  }
+  const btnCollapse = document.getElementById('btn-collapse-all');
+  if (btnCollapse) {
+    btnCollapse.addEventListener('click', function() {
+      RULE_SECTIONS.forEach(s => { collapsedSections[s.key] = false; });
+      render();
+    });
+  }
+
+  // Animate progress bars
+  document.querySelectorAll('.progress-fill[data-target]').forEach(bar => {
+    const tgt = bar.dataset.target + '%';
+    setTimeout(() => {
+      bar.style.width = tgt;
+    }, 60);
+  });
+
+  // Hotlist: click to open drama detail modal
+  document.querySelectorAll('.hotlist-item[data-hotlist-idx]').forEach(el => {
+    el.addEventListener('click', function() {
+      const idx = parseInt(this.dataset.hotlistIdx);
+      if (DATA.hotlist && DATA.hotlist[idx]) {
+        showDramaDetail(DATA.hotlist[idx]);
+      }
+    });
+  });
+
+  // Hook trends: click to toggle detail expand
+  document.querySelectorAll('.hook-trend-item[data-hook-idx]').forEach(el => {
+    el.addEventListener('click', function() {
+      const idx = this.dataset.hookIdx;
+      const detail = document.getElementById('hook-detail-' + idx);
+      if (detail) {
+        detail.style.display = detail.style.display === 'none' ? 'block' : 'none';
+        this.classList.toggle('hook-expanded');
+      }
+    });
+  });
+
+  // Dashboard: refresh button
+  const btnRefresh = document.getElementById('btn-refresh');
+  if (btnRefresh) btnRefresh.addEventListener('click', refreshData);
+
+  // Dashboard: project buttons
+  const btnNew = document.getElementById('btn-new-project');
+  if (btnNew) btnNew.addEventListener('click', newProject);
+  const btnSwitch = document.getElementById('btn-switch-project');
+  if (btnSwitch) btnSwitch.addEventListener('click', newProject);
+
+  // Check: save/reset
+  const btnSave = document.getElementById('btn-save-checks');
+  if (btnSave) btnSave.addEventListener('click', saveChecks);
+  const btnReset = document.getElementById('btn-reset-checks');
+  if (btnReset) btnReset.addEventListener('click', resetChecks);
+
+  // Retry load
+  const btnRetry = document.getElementById('btn-retry-load');
+  if (btnRetry) btnRetry.addEventListener('click', () => loadData().then(() => render()));
+}
+
+// ==================== Global Event Delegation ====================
+document.getElementById('app').addEventListener('click', function(e) {
+  // Tab clicks
+  const tab = e.target.closest('[data-tab]');
+  if (tab && !tab.closest('#tabs') && !tab.closest('#nav')) return;
+  if (tab) { switchTab(tab.dataset.tab); return; }
+
+  // Check items
+  const checkItem = e.target.closest('.check-item[data-item]');
+  if (checkItem) {
+    const item = checkItem.dataset.item;
+    checkState[item] = !checkState[item];
+    saveChecksSilent();
+    render();
+    return;
+  }
+
+  // Collapse headers
+  const collapseHeader = e.target.closest('.collapse-header[data-section]');
+  if (collapseHeader) {
+    const key = collapseHeader.dataset.section;
+    collapsedSections[key] = collapsedSections[key] === false ? true : false;
+    render();
+    return;
+  }
+});
+
+// Install banner dismiss
+document.getElementById('btn-dismiss-install').addEventListener('click', function() {
+  document.getElementById('install-banner').classList.remove('show');
+  localStorage.setItem('scripter_install_dismissed', '1');
+});
+
+// ==================== Check Management ====================
+function saveChecksSilent() {
+  localStorage.setItem('scripter_checks', JSON.stringify(checkState));
+}
+function saveChecks() {
+  saveChecksSilent();
+  toast('自检进度已保存 ✓');
+}
+function resetChecks() {
+  if (confirm('确定要重置全部自检项？')) {
+    checkState = {};
+    localStorage.removeItem('scripter_checks');
+    render();
+    toast('已重置');
+  }
+}
+
+// ==================== Project Management ====================
+function newProject() {
+  const overlay = document.createElement('div');
+  overlay.className = 'modal-overlay';
+  overlay.innerHTML = `<div class="modal">
+    <h3>${activeProject ? '切换' : '创建'}项目</h3>
+    ${projects.length > 0 ? `<div style="max-height:200px;overflow-y:auto;margin-bottom:12px">
+      ${projects.map(p => `<div style="padding:10px;margin:4px 0;background:var(--bg);border-radius:8px;cursor:pointer;font-size:13px" data-select-project="${escapeHtml(p.name)}">
+        ${p.name === activeProject ? '✅ ' : ''}${escapeHtml(p.name)} · ${escapeHtml(p.desc || '')} · ${p.episodes || 72}集
+      </div>`).join('')}
+    </div>` : '<p style="font-size:12px;color:var(--sub);margin-bottom:8px">暂无项目，创建第一个：</p>'}
+    <input id="pname" placeholder="项目名称（如：夜王封神）">
+    <input id="pdesc" placeholder="一句话简介">
+    <select id="pfreq"><option value="">选择频向</option><option>男频</option><option>女频</option></select>
+    <select id="peps"><option value="72">预估集数</option><option value="45">45集</option><option value="72">72集</option><option value="100">100集</option></select>
+    <select id="pplat"><option value="">目标平台</option><option>红果首投</option><option>抖音首投</option><option>双平台</option></select>
+    <button class="btn btn-primary" id="btn-create-project">确认</button>
+    <button class="btn btn-outline" id="btn-cancel-project">取消</button>
+  </div>`;
+  document.body.appendChild(overlay);
+  overlay.addEventListener('click', function(e) {
+    if (e.target === overlay) overlay.remove();
+  });
+  overlay.querySelector('#btn-cancel-project').addEventListener('click', () => overlay.remove());
+  overlay.querySelector('#btn-create-project').addEventListener('click', createProject);
+  overlay.querySelectorAll('[data-select-project]').forEach(el => {
+    el.addEventListener('click', function() { selectProject(this.dataset.selectProject); overlay.remove(); });
+  });
+}
+
+function createProject() {
+  const name = document.getElementById('pname').value.trim();
+  if (!name) { toast('请输入项目名称'); return; }
+  const existing = projects.findIndex(p => p.name === name);
+  const proj = {
+    name,
+    desc: document.getElementById('pdesc').value.trim(),
+    freq: document.getElementById('pfreq').value,
+    episodes: parseInt(document.getElementById('peps').value) || 72,
+    platform: document.getElementById('pplat').value,
+    progress: 0, doneEp: 0,
+    created: new Date().toISOString()
+  };
+  if (existing >= 0) {
+    projects[existing] = {...projects[existing], ...proj};
+  } else {
+    projects.push(proj);
+  }
+  activeProject = name;
+  localStorage.setItem('scripter_projects', JSON.stringify(projects));
+  localStorage.setItem('scripter_active', activeProject);
+  document.querySelectorAll('.modal-overlay').forEach(e => e.remove());
+  render();
+  toast(`项目「${name}」已保存 ✓`);
+}
+
+function selectProject(name) {
+  activeProject = name;
+  localStorage.setItem('scripter_active', activeProject);
+  document.querySelectorAll('.modal-overlay').forEach(e => e.remove());
+  render();
+  toast(`已切换到「${name}」`);
+}
+
+// ==================== Drama Detail Modal ====================
+function showDramaDetail(d) {
+  const overlay = document.createElement('div');
+  overlay.className = 'modal-overlay';
+  overlay.innerHTML = `<div class="modal" style="max-width:480px;max-height:85vh">
+    <div style="display:flex;align-items:center;gap:10px;margin-bottom:12px">
+      <div class="hot-rank ${d.rank===1?'r1':d.rank===2?'r2':d.rank===3?'r3':'rn'}" style="font-size:14px;width:30px;height:30px">${d.rank}</div>
+      <div style="flex:1"><h3 style="margin:0;color:#fff">${escapeHtml(d.title)}</h3></div>
+      <span class="trend-score">${d.heat}°</span>
+    </div>
+    <div style="font-size:11px;color:var(--sub);margin-bottom:12px">${escapeHtml(d.type)} · ${d.episodes}集 · 核心钩子：${escapeHtml(d.hook)}</div>
+
+    <div style="margin-bottom:12px">
+      <div style="font-size:12px;color:var(--gold);font-weight:600;margin-bottom:4px">📖 故事梗概</div>
+      <div style="font-size:12px;color:var(--text);line-height:1.7">${escapeHtml(d.synopsis || '暂无')}</div>
+    </div>
+
+    <div style="margin-bottom:12px">
+      <div style="font-size:12px;color:var(--accent);font-weight:600;margin-bottom:4px">🪝 钩子结构拆解</div>
+      <div style="font-size:11px;color:var(--sub);line-height:1.7">${escapeHtml(d.hookBreakdown || '暂无')}</div>
+    </div>
+
+    <div style="margin-bottom:12px">
+      <div style="font-size:12px;color:var(--green);font-weight:600;margin-bottom:4px">🔑 成功要素</div>
+      <div style="font-size:11px;color:var(--sub);line-height:1.7">${escapeHtml(d.successFactors || '暂无')}</div>
+    </div>
+
+    <div style="margin-bottom:12px">
+      <div style="font-size:12px;color:#c084fc;font-weight:600;margin-bottom:4px">⏱️ 节奏设计</div>
+      <div style="font-size:11px;color:var(--sub);line-height:1.7">${escapeHtml(d.pacing || '暂无')}</div>
+    </div>
+
+    <button class="btn btn-outline" style="margin-top:8px">关闭</button>
+  </div>`;
+  document.body.appendChild(overlay);
+  overlay.addEventListener('click', function(e) {
+    if (e.target === overlay || e.target.textContent === '关闭') overlay.remove();
+  });
+  overlay.querySelector('.btn').addEventListener('click', () => overlay.remove());
+}
+
+// ==================== Service Worker ====================
+function registerSW() {
+  if ('serviceWorker' in navigator) {
+    const swPath = 'sw.js';
+    fetch(swPath, { cache: 'no-cache' }).then(r => {
+      if (r.ok) {
+        navigator.serviceWorker.register(swPath, { scope: './' }).then(reg => {
+          reg.addEventListener('updatefound', () => {
+            const newWorker = reg.installing;
+            newWorker.addEventListener('statechange', () => {
+              if (newWorker.state === 'installed' && navigator.serviceWorker.controller) {
+                toast('有新版本可用，刷新页面后更新 📦');
+              }
+            });
+          });
+        }).catch(() => {});
+      }
+    }).catch(() => {});
+  }
+}
+
+// ==================== Install Prompt ====================
+function setupInstallPrompt() {
+  if (localStorage.getItem('scripter_install_dismissed')) return;
+  window.addEventListener('beforeinstallprompt', function(e) {
+    e.preventDefault();
+    deferredPrompt = e;
+    setTimeout(() => {
+      document.getElementById('install-banner').classList.add('show');
+    }, 3000);
+  });
+  document.getElementById('btn-install').addEventListener('click', async function() {
+    if (deferredPrompt) {
+      deferredPrompt.prompt();
+      const result = await deferredPrompt.userChoice;
+      deferredPrompt = null;
+      document.getElementById('install-banner').classList.remove('show');
+      localStorage.setItem('scripter_install_dismissed', result.outcome === 'accepted' ? '1' : '');
+    }
+  });
+}
+
+// ==================== Online/Offline Detection ====================
+function setupNetworkDetection() {
+  function updateStatus() {
+    const bar = document.getElementById('offline-bar');
+    if (navigator.onLine) {
+      bar.classList.remove('show');
+      if (DATA) $('sync-info').innerHTML = '<span class="live">● 已联动</span> · 更新于 ' + DATA.updated;
+    } else {
+      bar.classList.add('show');
+      $('sync-info').innerHTML = '<span class="offline-dot">◉ 离线模式</span> · 使用缓存数据';
+    }
+  }
+  window.addEventListener('online', updateStatus);
+  window.addEventListener('offline', updateStatus);
+  updateStatus();
+}
+
+// ==================== Init ====================
+function init() {
+  registerSW();
+  setupInstallPrompt();
+  setupNetworkDetection();
+  loadData().then(success => { if (success) render(); });
+}
+
+init();
+</script>
+</body>
+</html>
