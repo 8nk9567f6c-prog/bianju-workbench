@@ -1,0 +1,66 @@
+Ep1: 743 chars | 2 scenes | cast=8 | FAIL
+  ISSUES: chars=743>700 | dialogue=2
+  DIALOGUE(21 chars): [打断年级第一复习——你们确定这是最好的认亲方式]
+    Full line: 林知意：打断年级第一复习——你们确定这是最好的认亲方式？
+  DIALOGUE(20 chars): [林知意背着洗得发白的帆布书包站在客厅中央]
+    Full line: 场景描述：水晶吊灯、旋转楼梯、落地窗。林知意背着洗得发白的帆布书包站在客厅中央。
+
+Ep2: 540 chars | 2 scenes | cast=7 | OK
+
+Ep3: 725 chars | 2 scenes | cast=7 | FAIL
+  ISSUES: chars=725>700 | dialogue=2
+  DIALOGUE(23 chars): [校服胸口绣着「京市一中」——和昨天穿的县中校服不一样了]
+    Full line: 场景描述：林知意转学第一天。午休，她抱着一摞新教材上楼。校服胸口绣着「京市一中」——和昨天穿的县中校服不一样了。转角处，
+  DIALOGUE(23 chars): [电脑屏幕播放监控画面——林知意的手全程没碰到苏婉莹]
+    Full line: 场景描述：电脑屏幕播放监控画面——林知意的手全程没碰到苏婉莹。苏婉莹自己后仰摔下去。
+
+Ep4: 490 chars | 2 scenes | cast=4 | FAIL
+  ISSUES: dialogue=3
+  DIALOGUE(20 chars): [如果她亲生母亲确诊过——她的行为就要重新评估]
+    Full line: 林知意：如果她亲生母亲确诊过——她的行为就要重新评估。
+  DIALOGUE(16 chars): [一个穿白衬衫的男生在看《常微分方程》]
+    Full line: 场景描述：图书馆靠窗座位。一个穿白衬衫的男生在看《常微分方程》。林知意在他对面坐下。
+  DIALOGUE(16 chars): [有件事苏叔叔不知道——苏婉莹的舍曲林]
+    Full line: 顾砚书：有件事苏叔叔不知道——苏婉莹的舍曲林，标准剂量50mg。她抽屉里那瓶是25mg。有人给她减了量。
+
+Ep5: 534 chars | 2 scenes | cast=5 | FAIL
+  ISSUES: action=2
+  ACTION(24 chars): [苏婉莹从头到尾没看她一眼——但沈月如看到的是「姐妹和睦」]
+    Full line: △ 林知意没说话。苏婉莹从头到尾没看她一眼——但沈月如看到的是「姐妹和睦」。
+  ACTION(21 chars): [苏婉莹翻杂志的手停了一下——嘴角那丝上扬又来了]
+    Full line: △ 苏婉莹翻杂志的手停了一下——嘴角那丝上扬又来了。一闪而过。
+
+Ep6: 445 chars | 2 scenes | cast=8 | FAIL
+  ISSUES: dialogue=1 | action=1
+  DIALOGUE(20 chars): [沈月如拿着一件淡蓝色礼服在林知意身上比划]
+    Full line: 场景描述：客厅里摆着礼服和首饰盒。今晚苏家设宴，向社会介绍林知意。沈月如拿着一件淡蓝色礼服在林知意身上比划。
+  ACTION(25 chars): [林知意接过礼服——后背的拉链位置有一道几乎看不见的脱线]
+    Full line: △ 苏婉莹站在一旁，乖巧微笑。林知意接过礼服——后背的拉链位置有一道几乎看不见的脱线。
+
+Ep7: 488 chars | 2 scenes | cast=3 | FAIL
+  ISSUES: dialogue=2
+  DIALOGUE(18 chars): [一个穿格子衫的中年女人搂着小时候的她]
+    Full line: 场景描述：礼服扔在地上。林知意坐在床边，手里攥着一个相框——照片里，一个穿格子衫的中年女人搂着小时候的她，站在县中门口。
+  DIALOGUE(18 chars): [她说她拉那个拉链的时候感觉到了不对劲]
+    Full line: 苏正清：她说她拉那个拉链的时候感觉到了不对劲。但她选择相信婉莹。因为如果不相信，她就得承认——她养了十六年的女儿，可能一
+
+Ep8: 500 chars | 2 scenes | cast=4 | FAIL
+  ISSUES: dialogue=2 | action=1
+  DIALOGUE(20 chars): [我用两周的数据拟合了一个函数——她的每次发作]
+    Full line: 林知意：情绪波动曲线。纵轴是她的行为激烈程度，横轴是时间。我用两周的数据拟合了一个函数——她的每次发作，峰值间隔越来越短
+  DIALOGUE(18 chars): [你高中的物理老师知道你拿函数分析人吗]
+    Full line: 顾砚书：你高中的物理老师知道你拿函数分析人吗？
+  ACTION(21 chars): [这是林知意第一次看到她真正的样子——没有公主裙]
+    Full line: △ 门突然开了。苏婉莹穿着睡衣，没有化妆，头发散着。这是林知意第一次看到她真正的样子——没有公主裙，没有发卡。
+
+Ep9: 427 chars | 2 scenes | cast=5 | FAIL
+  ISSUES: dialogue=1
+  DIALOGUE(17 chars): [你妈每个月按时去药房——以为自己在帮她]
+    Full line: 顾砚书：不知道。苏婉莹跟她说老药效果好，让她继续取。你妈每个月按时去药房——以为自己在帮她。
+
+Ep10: 590 chars | 2 scenes | cast=6 | FAIL
+  ISSUES: dialogue=1
+  DIALOGUE(16 chars): [背后大屏幕显示——「全市模拟考试 第一名]
+    Full line: 场景描述：全校大会。校长站在台上，背后大屏幕显示——「全市模拟考试 第一名：林知意 总分719」。
+
+TOTAL: 5482 | AVG: 548

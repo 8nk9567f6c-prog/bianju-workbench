@@ -1,0 +1,29 @@
+{
+  "mcpServers": {
+    "bianju-validators": {
+      "command": "C:\\Users\\17928\\AppData\\Local\\Programs\\Python\\Python312\\python.exe",
+      "args": [
+        "D:\\WorkSpace\\编剧工作台\\scripts\\mcp_server.py"
+      ],
+      "description": "编剧工作台自动验证引擎 v5.5 — 80+项自检(含情绪弹簧/信息前置/对白质量/情绪银行/付费峰值) + 跨集交叉验证 + 平台红线扫描",
+      "tools": [
+        "validate_episode",
+        "check_writing_redlines",
+        "check_format",
+        "check_platform_redlines",
+        "check_content_rules",
+        "check_rhythm",
+        "check_emotion_spring",
+        "check_emotion_spring_full",
+        "check_emotion_anchors",
+        "check_emotion_beat_template",
+        "check_character_emotion_range",
+        "check_emotion_bank",
+        "check_paywall_ramp",
+        "check_info_frontloading",
+        "check_dialogue_quality",
+        "validate_multi_episodes"
+      ]
+    }
+  }
+}

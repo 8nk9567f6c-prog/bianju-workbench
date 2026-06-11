@@ -1,0 +1,48 @@
+{
+  "hooks": {
+    "SessionStart": [
+      {
+        "matcher": "",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "echo \"[编剧工作台 v7.0] ▸ 调度框架就绪：读取 CORE_CREATIVE_DNA.md → 确认全局[✓]项目[✓]灵感[✓] → 输入任意内容自动路由\""
+          }
+        ]
+      }
+    ],
+    "Stop": [
+      {
+        "matcher": "",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "cd \"D:/WorkSpace/编剧工作台\" && \"C:/Users/17928/AppData/Local/Programs/Python/Python312/python.exe\" scripts/save_checkpoint.py --session \"$CLAUDE_SESSION_ID\""
+          }
+        ]
+      }
+    ],
+    "PreToolUse": [
+      {
+        "matcher": "Write|Edit",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "[ -f \"D:/WorkSpace/编剧工作台/CORE_CREATIVE_DNA.md\" ] && echo \"[编剧工作台] 文件写入前：确保平台红线自检已执行；完成后更新DNA检查点\" || exit 0"
+          }
+        ]
+      }
+    ],
+    "PostToolUse": [
+      {
+        "matcher": "Write",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "PYTHONIOENCODING=utf-8 python \"D:/WorkSpace/编剧工作台/scripts/sync_to_obsidian.py\" \"$CLAUDE_TOOL_INPUT_FILE_PATH\" --project \"$(echo \"$CLAUDE_TOOL_INPUT_FILE_PATH\" | sed -n 's|.*/作品/\\([^/]*\\).*|\\1|p')\" 2>/dev/null || exit 0"
+          }
+        ]
+      }
+    ]
+  }
+}
