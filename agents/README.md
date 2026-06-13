@@ -49,11 +49,11 @@ agents/
 ├── agent_dispatcher.md               ← Agent 0: 调度框架
 ├── agent_topic_research.md           ← Agent 1: 选题调研（内置 8 基因对标）
 ├── agent_outline_construction.md     ← Agent 2: 大纲搭建（内置三维护大纲自审）
-├── agent_content_expansion.md        ← Agent 3: 内容扩充（内置四维护剧本自审 + MCP 16 工具）
+├── agent_content_expansion.md        ← Agent 3: 内容扩充（内置四维护剧本自审 + MCP 17 工具）
 └── references/                       ← 按需加载参考文件（渐进披露）
     ├── gene_8_criteria.md            ← Agent 1 步骤 3 读取：8 基因完整拆解标准
     ├── outline_review_checklist.md   ← Agent 2 自审时读取：33 项大纲自审清单
-    └── script_review_checklist.md    ← Agent 3 自审时读取：54 项剧本自审清单
+    └── script_review_checklist.md    ← Agent 3 自审时读取：58 项剧本自审清单
 
 scripts/
 ├── scan_projects.py                  ← 项目扫描（供 Agent 0 使用）
