@@ -17,10 +17,9 @@
 
 ## 启动
 
-1. 读取 `CORE_CREATIVE_DNA.md` → 确认 DNA[✓]
-2. 读取 `agents/FOUNDATION.md` → 确认 FOUNDATION[✓]
-3. `python scripts/scan_projects.py --json` → 列出可用项目
-4. 输出：`▸ 调度框架 v7.1 就绪 项目[N] —— 输入任意内容自动路由`
+1. 读取 `CORE_CREATIVE_DNA.md` → 确认 DNA[✓]（核心创作规则已内嵌 dispatcher spawn 模板，无需加载 FOUNDATION.md）
+2. `python scripts/scan_projects.py --json` → 列出可用项目
+3. 输出：`▸ 调度框架 v7.1 就绪 项目[N] —— 输入任意内容自动路由`
 
 ## 路由流程
 
