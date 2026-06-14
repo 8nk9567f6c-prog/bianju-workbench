@@ -29,8 +29,12 @@ def sentence_length_gini(sentences):
     mean_len = sum(lengths) / len(lengths)
     if mean_len == 0:
         return 1.0, lengths
-    diffs = sum(abs(a - b) for a in lengths for b in lengths)
-    gini = diffs / (2 * len(lengths) * len(lengths) * mean_len) if mean_len > 0 else 1
+    # O(N log N) via sorted cumulative sum: G = (2*Σ(i*sorted_i) - (n+1)*Σ(sorted_i)) / (n*Σ(sorted_i))
+    sorted_lens = sorted(lengths)
+    n = len(sorted_lens)
+    total = sum(sorted_lens)
+    weighted_sum = sum((i + 1) * val for i, val in enumerate(sorted_lens))
+    gini = (2 * weighted_sum - (n + 1) * total) / (n * total) if total > 0 else 1
     return gini, lengths
 
 def type_token_ratio(text):
@@ -74,7 +78,10 @@ def paragraph_uniformity(paragraphs):
 def ai_marker_density(text):
     """AI 标记词密度——每 600 字应 ≤ 1 个"""
     markers = ['仿佛', '忽然', '竟然', '不禁', '宛如', '猛地', '难以置信', '无形中',
-               '然而', '因此', '于是', '随后', '与此同时', '就这样', '不仅如此']
+               '然而', '因此', '于是', '随后', '与此同时', '就这样', '不仅如此',
+               '岂料', '殊不知', '正所谓', '不料', '显而易见', '毋庸置疑',
+               '由此可见', '换言之', '总而言之', '综上所述', '顷刻间',
+               '蓦然', '倏地', '须臾', '便见得']
     total_chars = len(re.findall(r'[一-鿿]', text))
     if total_chars < 100:
         return 0.0, []
@@ -133,7 +140,10 @@ def compute_style_fingerprint(text):
 
     # 4. AI标记词密度（每600字）
     markers = ['仿佛', '忽然', '竟然', '不禁', '宛如', '猛地', '难以置信', '无形中',
-               '然而', '因此', '于是', '随后', '与此同时', '就这样', '不仅如此']
+               '然而', '因此', '于是', '随后', '与此同时', '就这样', '不仅如此',
+               '岂料', '殊不知', '正所谓', '不料', '显而易见', '毋庸置疑',
+               '由此可见', '换言之', '总而言之', '综上所述', '顷刻间',
+               '蓦然', '倏地', '须臾', '便见得']
     marker_count = sum(text.count(m) for m in markers)
     marker_density = marker_count / (total_chars / 600) if total_chars > 0 else 0
 

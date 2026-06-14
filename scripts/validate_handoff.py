@@ -58,7 +58,7 @@ HANDOFF_CONTRACTS = {
             {"id": "writing_anchor", "name": "当前写作锚点", "file": "ANCHOR.md", "check": lambda anchor, _outline: _check_anchor_section(anchor, "七")},
             {"id": "emotion_tracking", "name": "情绪追踪表", "file": "ANCHOR.md", "check": lambda anchor, _outline: _check_anchor_section(anchor, "八")},
             {"id": "outline_segment", "name": "当前段大纲文件（每集 2-3 句梗概+标注）", "file": "大纲文件", "check": lambda anchor, outline: _check_outline_has_episodes(outline)},
-            {"id": "self_review_pass", "name": "ANCHOR 八节自审全部 ✓ 标记", "file": "自审报告", "check": lambda anchor, _outline: True},  # manual check
+            {"id": "self_review_pass", "name": "ANCHOR 八节自审全部 ✓ 标记", "file": "自审报告", "check": lambda anchor, _outline: _check_self_review_pass(anchor)},
         ]
     }
 }
@@ -175,6 +175,16 @@ def _check_foreshadowing_count(anchor_path):
         if in_section_5 and line.strip().startswith("- ") and len(line.strip()) > 5:
             count += 1
     return count
+
+
+def _check_self_review_pass(anchor_path):
+    """验证 ANCHOR.md 八节全部存在且有内容——Agent 2 自审完成的前置条件。"""
+    sections = ["一", "二", "三", "四", "五", "六", "七", "八"]
+    passed = 0
+    for num in sections:
+        if _check_anchor_section(anchor_path, num):
+            passed += 1
+    return passed == 8
 
 
 def _check_outline_has_episodes(outline_path):

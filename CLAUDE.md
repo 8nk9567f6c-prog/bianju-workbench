@@ -17,9 +17,11 @@
 
 ## 启动
 
-1. 读取 `CORE_CREATIVE_DNA.md` → 确认 DNA[✓]（核心创作规则已内嵌 dispatcher spawn 模板）
-2. `python scripts/scan_projects.py --dashboard` → 项目仪表盘
+1. 确认 SessionStart Hook 已输出项目仪表盘（`scan_projects.py --dashboard`）
+2. 检查 `CORE_CREATIVE_DNA.md` 可读 → 提取当前活跃项目 DNA 段 → 确认 DNA[✓]
 3. 输出：`▸ 调度框架 v7.1 就绪 —— 输入任意内容自动路由`
+
+> Pre-flight 三检（DNA / 作品目录 / 用户输入）详见 `agent_dispatcher.md` 步骤 0。CLAUDE.md 与 dispatcher 保持一致。
 
 ## 路由流程
 

@@ -45,8 +45,7 @@ Agent 1   Agent 2   Agent 3
 ```
 agents/
 ├── README.md                         ← 本文件
-├── FOUNDATION.md                     ← 底层创作宪法（所有 Agent 强制预加载）
-├── agent_dispatcher.md               ← Agent 0: 调度框架
+├── agent_dispatcher.md               ← Agent 0: 调度框架（核心创作规则已内嵌 spawn 模板）
 ├── agent_topic_research.md           ← Agent 1: 选题调研（内置 8 基因对标）
 ├── agent_outline_construction.md     ← Agent 2: 大纲搭建（内置三维护大纲自审）
 ├── agent_content_expansion.md        ← Agent 3: 内容扩充（内置四维护剧本自审 + MCP 17 工具）

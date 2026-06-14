@@ -213,10 +213,19 @@ def check_rhythm(text):
     beats = len(re.findall(r'---', text)) + len(re.findall(r'^△\s', text, re.MULTILINE)) // 3
     results.append({"name": "≥3节拍", "passed": beats >= 3, "detail": f"约{beats}节拍"})
 
-    # 钩子密度
+    # 钩子密度（v7.1.1 多信号加权：信息差+反转+悬念结尾+情绪标点）
     word_count = len(re.findall(r'[一-鿿]', text))
-    hooks = len(re.findall(r'[？！…]', text))  # rough proxy
-    results.append({"name": "钩子密度检测", "passed": True, "detail": f"约{hooks}个情绪标点/{word_count}字"})
+    # 1. 悬念结尾（段末疑问句/省略号/未完标记）
+    suspense_ends = len(re.findall(r'(?:…|\?|！)\s*$', text, re.MULTILINE))
+    # 2. 信息差标记（观众已知 vs 角色不知）
+    info_gap = len(re.findall(r'(?:殊不知|谁[也又]?不知|只有.*知道|观众.*看到|原来|竟然|其实)', text))
+    # 3. 反转信号
+    reversals = len(re.findall(r'(?:不料|没想到|谁知|突然|反转|真相|翻盘)', text))
+    # 4. 情绪标点密度（？！）
+    emotion_punct = len(re.findall(r'[？！]', text))
+    # 加权综合：悬念×3 + 信息差×2 + 反转×2 + 情绪标点×1
+    hook_score = (suspense_ends * 3 + info_gap * 2 + reversals * 2 + emotion_punct) / max(word_count / 100, 1)
+    results.append({"name": "钩子密度检测", "passed": hook_score >= 1.5, "detail": f"钩子密度{hook_score:.1f}/100字 (≥1.5达标)"})
 
     # 无连续10秒空白 (proxied by checking for long blocks without dialogue/action)
     results.append({"name": "无连续10秒空白", "passed": True, "detail": "需人工复核"})

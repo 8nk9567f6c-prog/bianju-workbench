@@ -50,7 +50,7 @@ allowed-tools:
 ├── SKILL.md               ← 本文件（Skill 元数据 + 分发入口）
 ├── .claude/
 │   ├── settings.json      ← Hooks（SessionStart/Stop/PreToolUse）
-│   ├── mcp.json           ← MCP 服务器配置（16个自动验证工具）
+│   ├── mcp.json           ← MCP 服务器配置（17个自动验证工具）
 │   └── skills/            ← 可安装到其他项目的 skill 副本
 ├── .claudeignore          ← 上下文污染防护
 ├── agents/                ← ★v7.1 四 Agent 调度系统 + 收敛式修订循环
@@ -94,7 +94,7 @@ allowed-tools:
 }
 ```
 
-16 个工具：`validate_episode` / `check_writing_redlines` / `check_format` / `check_platform_redlines` / `check_content_rules` / `check_rhythm` / `check_emotion_spring` / `check_emotion_spring_full` / `check_emotion_anchors` / `check_emotion_beat_template` / `check_character_emotion_range` / `check_emotion_bank` / `check_paywall_ramp` / `check_info_frontloading` / `check_dialogue_quality` / `validate_multi_episodes`
+17 个工具：`validate_episode` / `check_writing_redlines` / `check_format` / `check_platform_redlines` / `check_content_rules` / `check_rhythm` / `check_emotion_spring` / `check_emotion_spring_full` / `check_emotion_anchors` / `check_emotion_beat_template` / `check_character_emotion_range` / `check_emotion_bank` / `check_paywall_ramp` / `check_info_frontloading` / `check_dialogue_quality` / `check_tension_arc` / `validate_multi_episodes`
 
 ## 核心命令速查
 
