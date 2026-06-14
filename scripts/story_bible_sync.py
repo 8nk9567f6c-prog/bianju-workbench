@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""story_bible_sync.py — 故事圣经自动同步引擎 (v7.0)
+"""story_bible_sync.py — 故事圣经自动同步引擎 (v7.1)
 扫描项目剧本文件，自动提取角色/道具/伏笔/金手指/世界观更新至故事圣经.md
 
 用法: python scripts/story_bible_sync.py "作品/{项目名}"
@@ -164,7 +164,7 @@ def update_story_bible(project_dir, data):
     today = date.today().isoformat()
 
     # Update header
-    original = re.sub(r'> 最后更新: .+', f'> 最后更新: {today} | 更新者: story_bible_sync.py (v7.0 auto) | 版本: v2.0', original)
+    original = re.sub(r'> 最后更新: .+', f'> 最后更新: {today} | 更新者: story_bible_sync.py (v7.1 auto) | 版本: v2.0', original)
 
     # Update prop table
     original = re.sub(

@@ -405,7 +405,7 @@ TOOLS = [
     },
     {
         "name": "check_tension_arc",
-        "description": "v7.0 逐幕张力曲线检测：基于标点密度/句长/情绪词/反转词/对话占比综合评分实际张力(0-10)。如提供target_tension则对比目标vs实际偏差(≤1匹配/≤2轻微/≤3显著/>3严重)",
+        "description": "v7.1 逐幕张力曲线检测：基于标点密度/句长/情绪词/反转词/对话占比综合评分实际张力(0-10)。如提供target_tension则对比目标vs实际偏差(≤1匹配/≤2轻微/≤3显著/>3严重)",
         "inputSchema": {
             "type": "object",
             "properties": {

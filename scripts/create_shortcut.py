@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Create desktop shortcut for 脚本工作台 v6.1"""
+"""Create desktop shortcut for 编剧工作台 v7.1"""
 import os
 
 desktop = os.path.expanduser(r"~\Desktop")
@@ -12,12 +12,12 @@ lines = [
     "",
     "echo.",
     "echo   ╔══════════════════════════════════════════╗",
-    "echo   ║       编 剧 工 作 台  v6.1              ║",
-    "echo   ║  4 Agent + 16 MCP + Perplexity Gate     ║",
+    "echo   ║       编 剧 工 作 台  v7.1              ║",
+    "echo   ║  4 Agent + 17 MCP + Forge Loop          ║",
     "echo   ╚══════════════════════════════════════════╝",
     "echo.",
     "echo   项目路径: D:\\WorkSpace\\编剧工作台\\",
-    "echo   4 Agent / 16 MCP / 7真相文件 / 确定性Gate",
+    "echo   4 Agent / 17 MCP / Forge Loop / 收敛式修订",
     "echo   输入 /调度 开始",
     "echo   ──────────────────────────────────────────",
     "echo.",

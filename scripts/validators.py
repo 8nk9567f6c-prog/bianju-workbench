@@ -1,5 +1,5 @@
 """
-编剧工作台 v5.5 — 自动化验证引擎
+编剧工作台 v7.1 — 自动化验证引擎
 Usage: python validators.py <episode_file.md> [--json]
 """
 import sys
@@ -1057,10 +1057,10 @@ def check_paywall_ramp(episode_texts, paywall_positions=None):
     }
 
 
-# ── v7.0 逐幕张力曲线检测 ──
+# ── v7.1 逐幕张力曲线检测 ──
 
 def check_tension_arc(text, target_tension=None):
-    """逐幕张力曲线检测 v7.0：基于标点密度/句长/情绪词/反转词/对话占比综合评分实际张力(0-10)。
+    """逐幕张力曲线检测 v7.1：基于标点密度/句长/情绪词/反转词/对话占比综合评分实际张力(0-10)。
     如提供 target_tension，对比目标 vs 实际偏差。
     """
     total_chars = len(re.findall(r'[一-鿿]', text))

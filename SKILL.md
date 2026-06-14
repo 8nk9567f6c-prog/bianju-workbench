@@ -1,7 +1,7 @@
 ---
 name: bianju-workstation
-description: 短剧编剧工作台 v7.0——职业下沉市场短剧创作 Agent 系统。四 Agent 调度框架(调度→选题调研→大纲搭建→内容扩充)，100集×5w+字标准化产出，SS/S+ 爆款算法，收敛式修订循环(Forge Loop: Reader-Sim+Critic四通道)，逐幕张力0-10量化，双模情绪引擎(情绪银行+情绪弹簧)，35斜杠命令，8基因对标+风格指纹，MCP 自动验证(17工具80+项)。融合救猫咪+麦基+悉德菲尔德+红果算法+drama-creator方法论+好莱坞评估标准。
-version: "7.0.0"
+description: 短剧编剧工作台 v7.1——职业下沉市场短剧创作 Agent 系统。四 Agent 调度框架(调度→选题调研→大纲搭建→内容扩充)，100集×5w+字标准化产出，SS/S+ 爆款算法，AG3 创作铁律升级(一事一集/对话主力/字数控管≤650/伏笔速回收/剧情简化)，收敛式修订循环(Forge Loop: Reader-Sim+Critic四通道)，逐幕张力0-10量化，双模情绪引擎(情绪银行+情绪弹簧)，35斜杠命令，8基因对标+风格指纹，MCP 自动验证(17工具80+项)。融合救猫咪+麦基+悉德菲尔德+红果算法+drama-creator方法论+好莱坞评估标准。
+version: "7.1.0"
 author: "编剧工作台"
 tags: [screenwriting, short-drama, content-creation, chinese, script-writing, agent-pipeline, forge-convergence-loop]
 allowed-tools:
@@ -17,15 +17,15 @@ allowed-tools:
   - Skill
 ---
 
-# 编剧工作台 v7.0 — 短剧创作 Skill
+# 编剧工作台 v7.1 — 短剧创作 Skill
 
 ## 能力概述
 
-为下沉市场（30岁以上用户，80%消费时长）创作标准化 100 集 × 5w+ 字短剧剧本。以 SS/S+ 爆款算法（10维100分制，S+≥85分）为最高优先级。v7.0 新增收敛式修订循环（Forge Loop）、逐幕张力0-10量化、五维文学润色、风格指纹漂移自动检测、故事圣经自动同步。
+为下沉市场（30岁以上用户，80%消费时长）创作标准化 100 集 × 5w+ 字短剧剧本。以 SS/S+ 爆款算法（10维100分制，S+≥85分）为最高优先级。v7.1 AG3 创作铁律升级（一事一集/对话主力/字数控管≤650/伏笔速回收/剧情简化），收敛式修订循环（Forge Loop）、逐幕张力0-10量化、五维文学润色、风格指纹漂移自动检测、故事圣经自动同步。
 
-### v7.0 核心升级 vs 竞品
+### v7.1 核心升级 vs 竞品
 
-| 能力维度 | 编剧工作台 v7.0 | drama-creator v2.2 | @gonzih screenwriting |
+| 能力维度 | 编剧工作台 v7.1 | drama-creator v2.2 | @gonzih screenwriting |
 |----------|----------------|-------------------|----------------------|
 | 智能体流水线 | ★四 Agent 调度(调度→选题→大纲→内容) | — | — |
 | 收敛式修订循环 | ★Forge Loop (Reader-Sim+Critic四通道+Revision-Writer ≤3轮) | — | — |
@@ -45,7 +45,7 @@ allowed-tools:
 
 ```
 编剧工作台/
-├── CLAUDE.md              ← 主 Agent 指令集（v7.0：35斜杠命令 + 四 Agent 调度 + 收敛式修订循环 + 17 MCP工具）
+├── CLAUDE.md              ← 主 Agent 指令集（v7.1：35斜杠命令 + 四 Agent 调度 + 收敛式修订循环 + 17 MCP工具）
 ├── CORE_CREATIVE_DNA.md   ← 永久记忆（领域知识：S+评分/黄金四步/情绪银行/算法铁律）
 ├── SKILL.md               ← 本文件（Skill 元数据 + 分发入口）
 ├── .claude/
@@ -53,7 +53,7 @@ allowed-tools:
 │   ├── mcp.json           ← MCP 服务器配置（16个自动验证工具）
 │   └── skills/            ← 可安装到其他项目的 skill 副本
 ├── .claudeignore          ← 上下文污染防护
-├── agents/                ← ★v7.0 四 Agent 调度系统 + 收敛式修订循环
+├── agents/                ← ★v7.1 四 Agent 调度系统 + 收敛式修订循环
 │   ├── README.md           ← Agent 系统总览 + 流水线编排指南
 │   ├── agent_topic_research.md       ← Agent 1: 选题调研智能体
 │   ├── agent_outline_construction.md ← Agent 2: 大纲搭建智能体
@@ -100,7 +100,7 @@ allowed-tools:
 
 输入 `/` 查看全部 35 个斜杠命令。关键流程：
 
-**v7.0 四 Agent 调度流水线（一键全流程）**：
+**v7.1 四 Agent 调度流水线（一键全流程）**：
 ```
 /流水线 → Agent 1 选题调研(等确认) → Agent 2 大纲搭建(等确认) → Agent 3 内容扩充(五阶段等确认) → /导出
 ```

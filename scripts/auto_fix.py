@@ -1,5 +1,5 @@
 """
-编剧工作台 v5.5 — 自动修复引擎
+编剧工作台 v7.1 — 自动修复引擎
 Usage: python auto_fix.py <episode_file.md> [--dry-run]
 """
 import sys

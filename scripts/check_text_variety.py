@@ -4,7 +4,7 @@
 用法: python check_text_variety.py "file.md" --threshold 70
       python check_text_variety.py "ep50.md" --baseline "ep1-3.md"  # 风格漂移检测
 退出码: 0=通过 1=警告(≥1项临界) 2=拒绝(≥1项红线)
-v7.0: 新增 --baseline 参数，对比风格基线检测漂移
+v7.1: 新增 --baseline 参数，对比风格基线检测漂移
 """
 
 import sys
@@ -102,7 +102,7 @@ def formulaic_openings(sentences):
             issues.append((k, v))
     return len(issues), issues
 
-# ── 风格基线漂移检测 (v7.0) ──────────────────
+# ── 风格基线漂移检测 (v7.1) ──────────────────
 
 def compute_style_fingerprint(text):
     """提取文本风格指纹（4维可量化指标）"""
@@ -288,7 +288,7 @@ def main():
         print(f"✗ {result['error']}", file=sys.stderr)
         sys.exit(2)
 
-    # ── 风格基线漂移检测 (v7.0) ──
+    # ── 风格基线漂移检测 (v7.1) ──
     baseline_result = None
     if args.baseline:
         baseline_path = Path(args.baseline)
@@ -302,7 +302,7 @@ def main():
             baseline_result = compare_baseline(cur_fp, base_fp)
 
             if not args.json:
-                print(f"▸ 风格基线漂移检测 (v7.0)")
+                print(f"▸ 风格基线漂移检测 (v7.1)")
                 print(f"  基线: {baseline_path.name}  (句长{base_fp['sent_mean']}±{base_fp['sent_std']}字)  "
                       f"感官密度{base_fp['sensory_density']}/千字  对白比{base_fp['dialogue_ratio']}")
                 print(f"  当前: {Path(args.file).name}  (句长{cur_fp['sent_mean']}±{cur_fp['sent_std']}字)  "

@@ -6,7 +6,7 @@
         "hooks": [
           {
             "type": "command",
-            "command": "echo \"[编剧工作台 v7.0] ▸ 调度框架就绪：读取 CORE_CREATIVE_DNA.md → 确认全局[✓]项目[✓]灵感[✓] → 输入任意内容自动路由\""
+            "command": "echo \"[编剧工作台 v7.1] ▸ 调度框架就绪：读取 CORE_CREATIVE_DNA.md → 确认全局[✓]项目[✓]灵感[✓] → 输入任意内容自动路由\""
           }
         ]
       }
