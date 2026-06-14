@@ -1,8 +1,8 @@
 #!/usr/bin/env python3
-"""scan_projects.py — 扫描作品/目录，输出结构化项目数据（供 Agent 0 调度使用）
+"""scan_projects.py — 扫描作品/目录，输出结构化项目数据 + 仪表盘
 
 用法:
-  python scan_projects.py [--workspace 作品目录路径] [--json] [--project 项目名]
+  python scan_projects.py [--workspace 作品目录路径] [--json] [--project 项目名] [--dashboard]
 
 输出 JSON:
   {
@@ -113,6 +113,148 @@ def get_last_modified(project_path):
         return None
 
 
+def get_checkpoint_info(project_path):
+    """Extract checkpoint info from .checkpoint_script.json or .checkpoint_outline.json."""
+    info = {}
+    for cp_name in [".checkpoint_script.json", ".checkpoint_outline.json"]:
+        cp = project_path / cp_name
+        if cp.exists():
+            try:
+                data = json.loads(cp.read_text(encoding="utf-8"))
+                info["checkpoint_type"] = data.get("agent", cp_name)
+                info["phase"] = data.get("phase", data.get("current_phase", "?"))
+                info["episodes"] = data.get("total_episodes_written", data.get("episode_range", "?"))
+                info["last_updated"] = data.get("last_updated", "")
+                # Foreshadowing
+                if "foreshadowing_count" in data:
+                    fc = data["foreshadowing_count"]
+                    info["foreshadowing"] = f"埋{fc.get('埋设',fc.get('total',0))}/收{fc.get('已回收',0)}"
+                elif "truth_files" in data:
+                    tf = data["truth_files"]
+                    info["foreshadowing"] = f"开{tf.get('hooks_open',0)}收{tf.get('hooks_resolved',0)}"
+                break
+            except Exception:
+                pass
+    return info
+
+
+def get_speed_table_status(project_path):
+    """Check if 剧本速查表 exists and return row count."""
+    speed = project_path / "剧本" / "剧本速查表.md"
+    if not speed.exists():
+        speed = project_path / "剧本速查表.md"
+    if speed.exists():
+        try:
+            content = speed.read_text(encoding="utf-8")
+            rows = len([l for l in content.split("\n") if l.strip().startswith("|") and not l.strip().startswith("|---")])
+            return {"exists": True, "rows": max(0, rows - 1)}  # minus header
+        except Exception:
+            return {"exists": True, "rows": 0}
+    return {"exists": False, "rows": 0}
+
+
+def get_days_since(timestamp_str):
+    """Calculate days since a timestamp."""
+    if not timestamp_str:
+        return None
+    try:
+        ts = datetime.fromisoformat(timestamp_str)
+        return (datetime.now() - ts).days
+    except Exception:
+        return None
+
+
+def print_dashboard(projects):
+    """Print a human-readable project dashboard."""
+    now = datetime.now()
+    print("▸ ═══════════════════════════════════════════════════════")
+    print("▸ 编剧工作台 — 项目仪表盘")
+    print(f"▸ 更新时间: {now.strftime('%Y-%m-%d %H:%M')}")
+    print("▸ ═══════════════════════════════════════════════════════")
+    print()
+
+    active_list = []
+    stale_list = []
+    dead_list = []
+
+    for proj in projects:
+        scripts = proj["scripts_count"]
+        has_anchor = proj["has_anchor"]
+        days = get_days_since(proj["last_modified"])
+
+        if scripts == 0 and not has_anchor:
+            dead_list.append(proj)
+        elif days is not None and days > 14:
+            stale_list.append(proj)
+        else:
+            active_list.append(proj)
+
+    # Active projects
+    if active_list:
+        print("🟢 活跃项目")
+        print(f"{'项目':<16} {'进度':<10} {'速查表':<8} {'检查点':<14} {'S+/状态':<12} {'最后改动':<12}")
+        print("-" * 75)
+        for proj in active_list:
+            _print_dashboard_row(proj)
+
+    # Stale projects
+    if stale_list:
+        print()
+        print("🟡 停滞项目（>14天未改动）")
+        for proj in stale_list:
+            days = get_days_since(proj["last_modified"])
+            print(f"  {proj['name']:<14}  {proj['scripts_count']}集剧本  {days}天前")
+
+    # Dead projects
+    if dead_list:
+        print()
+        print("⚫ 死项目（无剧本无锚点）")
+        for proj in dead_list:
+            print(f"  {proj['name']}")
+
+    print()
+    total_scripts = sum(p["scripts_count"] for p in projects)
+    active_count = len(active_list)
+    print(f"▸ 总计: {len(projects)}项目 | {active_count}活跃 | {total_scripts}集剧本 | {len(stale_list)}停滞 | {len(dead_list)}死项目")
+    print()
+
+
+def _print_dashboard_row(proj):
+    """Print a single project row for the dashboard."""
+    name = proj["name"]
+    scripts = proj["scripts_count"]
+    progress = f"{scripts}/100" if scripts > 0 else "未开始"
+
+    # Speed table
+    st = get_speed_table_status(Path(proj["path"]))
+    speed_str = f"{st['rows']}行" if st["exists"] else "—"
+
+    # Checkpoint
+    cp = get_checkpoint_info(Path(proj["path"]))
+    if cp:
+        cp_str = f"{cp.get('phase','?')}"
+    else:
+        cp_str = "—"
+
+    # Status / S+
+    if scripts >= 100:
+        status = "完本"
+    elif scripts > 0:
+        status = "创作中"
+    elif proj["has_anchor"]:
+        status = "大纲阶段"
+    elif proj["has_research_report"]:
+        status = "调研完成"
+    else:
+        status = "待启动"
+
+    # Last modified
+    days = get_days_since(proj["last_modified"])
+    modified_str = f"{days}天前" if days is not None and days >= 0 else "今天" if days == 0 else "—"
+
+    print(f"{name:<16} {progress:<10} {speed_str:<8} {cp_str:<14} {status:<12} {modified_str:<12}")
+
+
 def scan_projects(workspace_path):
     """Scan all projects in the workspace."""
     workspace = Path(workspace_path)
@@ -164,6 +306,7 @@ def main():
                         help="作品目录路径（默认 D:/WorkSpace/编剧工作台/作品）")
     parser.add_argument("--json", "-j", action="store_true", help="输出 JSON 格式")
     parser.add_argument("--project", "-p", help="只查询指定项目")
+    parser.add_argument("--dashboard", "-d", action="store_true", help="输出项目仪表盘")
     args = parser.parse_args()
 
     result = scan_projects(args.workspace)
@@ -182,6 +325,10 @@ def main():
                 return
         print(f"✗ 项目不存在: {args.project}", file=sys.stderr)
         sys.exit(1)
+
+    if args.dashboard:
+        print_dashboard(result["projects"])
+        return
 
     if args.json:
         print(json.dumps(result, ensure_ascii=False, indent=2))
