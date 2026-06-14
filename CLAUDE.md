@@ -34,7 +34,7 @@
 
 **Agent() 调用必须包含**：
 - `subagent_type="general-purpose"`
-- prompt 中指定读取 `agents/FOUNDATION.md` + `CORE_CREATIVE_DNA.md` + 目标 Agent 文件
+- prompt 中指定读取目标 Agent 文件（核心创作规则已内嵌，详见 dispatcher spawn 模板）
 - prompt 中传入：项目名 / 用户原始输入 / 特殊约束
 
 ## 子 Agent 文件

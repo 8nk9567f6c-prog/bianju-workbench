@@ -1,6 +1,6 @@
 # 核心创作规则精简版 — 嵌入 spawn prompt 用
 
-> 从 FOUNDATION.md + CORE_CREATIVE_DNA.md 提取，去重精简。约 80 行，覆盖所有 Agent 必需的核心规则。
+> 从 FOUNDATION.md（已归档至 references/FOUNDATION_archived.md）+ CORE_CREATIVE_DNA.md 提取，去重精简。约 64 行，覆盖所有 Agent 必需的核心规则。
 
 ## 用户画像
 老张，34岁，三线城市外卖员，月入4200。每天最幸福时刻：躺床上看短剧，代入主角把看不起自己的人踩在脚下。**你写的每一个字都必须让他爽到。**
