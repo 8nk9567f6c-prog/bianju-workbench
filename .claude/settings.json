@@ -22,17 +22,6 @@
         ]
       }
     ],
-    "PreToolUse": [
-      {
-        "matcher": "Write|Edit",
-        "hooks": [
-          {
-            "type": "command",
-            "command": "PYTHONIOENCODING=utf-8 \"C:/Users/17928/AppData/Local/Programs/Python/Python312/python.exe\" \"D:/WorkSpace/编剧工作台/.claude/hooks/block_redlines.py\" 2>&1"
-          }
-        ]
-      }
-    ],
     "PostToolUse": [
       {
         "matcher": "Write|Edit",

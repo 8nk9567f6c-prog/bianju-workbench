@@ -25,6 +25,16 @@ __pycache__/
 *.temp
 .docx_seq
 
+# 静态网站（与创作无关）
+docs/
+
+# 归档/参考（日常不加载）
+agents/references/FOUNDATION_archived.md
+
+# 元数据文件（日常不加载）
+版本记录.md
+SKILL.md
+
 # 依赖
 node_modules/
 .venv/
