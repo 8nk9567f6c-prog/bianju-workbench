@@ -1,8 +1,7 @@
-# 竞品 8 基因对标 — 完整拆解标准
+# ⚠️ 已废弃 — 请使用 evaluation_rubric.md
 
-> **加载触发**: Agent 1 步骤 3（竞品深析）执行时读取
-> **父文件**: `agents/agent_topic_research.md`
-> **用途**: 对每部竞品执行 8 维分析，每项标注可复制指数（1-10）和一句依据
+> 此文件已被 `agents/references/evaluation_rubric.md`（6维框架）取代。
+> 保留仅用于历史参考，不再作为 active 评估标准。
 
 ---
 

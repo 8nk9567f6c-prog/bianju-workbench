@@ -39,15 +39,89 @@ if sys.platform == "win32":
         pass
 
 
+def is_abandoned(project_path):
+    """Check if project has been explicitly abandoned by the user."""
+    return (project_path / ".abandoned").exists()
+
+
 def find_scripts(project_path):
-    """Find script files in various locations within a project."""
+    """Find script files in various locations within a project.
+
+    Only counts files matching 剧本-第N集.md pattern (excludes 速查表, temp files, etc.)
+    """
     scripts = []
-    patterns = ["剧本-第*.md", "剧本/*.md", "剧本-*.md"]
+    # Match: 剧本-第1集.md, 剧本/剧本-第10集.md, etc.
+    patterns = ["剧本-第*集.md", "剧本/剧本-第*集.md"]
     for pattern in patterns:
         for f in project_path.glob(pattern):
             if f.is_file():
                 scripts.append(f.name)
     return sorted(set(scripts))
+
+
+def count_docx_episodes(project_path):
+    """Count episodes from .docx source files in the project directory.
+
+    Returns the max episode count found across all docx files.
+    """
+    import re
+    max_eps = 0
+    for docx_file in project_path.glob("*.docx"):
+        try:
+            import zipfile
+            from xml.etree import ElementTree as ET
+            with zipfile.ZipFile(docx_file) as z:
+                xml_content = z.read('word/document.xml').decode('utf-8')
+                tree = ET.fromstring(xml_content)
+                paragraphs = []
+                for p in tree.iter('{http://schemas.openxmlformats.org/wordprocessingml/2006/main}p'):
+                    texts = []
+                    for t in p.iter('{http://schemas.openxmlformats.org/wordprocessingml/2006/main}t'):
+                        if t.text:
+                            texts.append(t.text)
+                    line = ''.join(texts).strip()
+                    if line:
+                        paragraphs.append(line)
+                full_text = '\n'.join(paragraphs)
+                # Match Chinese numerals: 第一集, 第十集, 第十五集
+                cn_nums = re.findall(r'第([一二三四五六七八九十百]+)集', full_text)
+                # Match Arabic numerals: 第1集, 第15集
+                ar_nums = re.findall(r'第(\d+)集', full_text)
+                episode_nums = set()
+                for n in cn_nums:
+                    num = _cn_num_to_int(n)
+                    if num and num <= 200:
+                        episode_nums.add(num)
+                for n in ar_nums:
+                    n = int(n)
+                    if n <= 200:
+                        episode_nums.add(n)
+                if episode_nums:
+                    max_eps = max(max_eps, max(episode_nums))
+        except Exception:
+            pass
+    return max_eps
+
+
+def _cn_num_to_int(cn):
+    """Convert Chinese numeral string to integer. E.g., '十五' -> 15, '一百' -> 100."""
+    map_cn = {'一': 1, '二': 2, '三': 3, '四': 4, '五': 5,
+              '六': 6, '七': 7, '八': 8, '九': 9, '十': 10, '百': 100}
+    if not cn:
+        return None
+    total = 0
+    section = 0
+    for ch in cn:
+        if ch == '百':
+            total += (section or 1) * 100
+            section = 0
+        elif ch == '十':
+            total += (section or 1) * 10
+            section = 0
+        else:
+            section = map_cn.get(ch, 0)
+    total += section
+    return total if total > 0 else None
 
 
 def find_outlines(project_path):
@@ -173,11 +247,15 @@ def print_dashboard(projects):
     print("▸ ═══════════════════════════════════════════════════════")
     print()
 
+    abandoned_list = []
     active_list = []
     stale_list = []
     dead_list = []
 
     for proj in projects:
+        if proj.get("abandoned"):
+            abandoned_list.append(proj)
+            continue
         scripts = proj["scripts_count"]
         has_anchor = proj["has_anchor"]
         days = get_days_since(proj["last_modified"])
@@ -205,6 +283,14 @@ def print_dashboard(projects):
             days = get_days_since(proj["last_modified"])
             print(f"  {proj['name']:<14}  {proj['scripts_count']}集剧本  {days}天前")
 
+    # Abandoned projects
+    if abandoned_list:
+        print()
+        print("🚫 已放弃项目")
+        for proj in abandoned_list:
+            effective = proj.get("effective_episodes", proj["scripts_count"])
+            print(f"  {proj['name']:<14}  {effective}集剧本  (主动放弃)")
+
     # Dead projects
     if dead_list:
         print()
@@ -213,17 +299,25 @@ def print_dashboard(projects):
             print(f"  {proj['name']}")
 
     print()
-    total_scripts = sum(p["scripts_count"] for p in projects)
+    total_scripts = sum(p.get("effective_episodes", p["scripts_count"]) for p in projects)
     active_count = len(active_list)
-    print(f"▸ 总计: {len(projects)}项目 | {active_count}活跃 | {total_scripts}集剧本 | {len(stale_list)}停滞 | {len(dead_list)}死项目")
+    abandon_count = len(abandoned_list)
+    summary_parts = [f"{len(projects)}项目", f"{active_count}活跃", f"{total_scripts}集剧本"]
+    if abandon_count > 0:
+        summary_parts.append(f"{abandon_count}已放弃")
+    summary_parts.append(f"{len(stale_list)}停滞")
+    summary_parts.append(f"{len(dead_list)}死项目")
+    print(f"▸ 总计: {' | '.join(summary_parts)}")
     print()
 
 
 def _print_dashboard_row(proj):
     """Print a single project row for the dashboard."""
     name = proj["name"]
+    effective = proj.get("effective_episodes", proj["scripts_count"])
+    docx_eps = proj.get("docx_episodes", 0)
     scripts = proj["scripts_count"]
-    progress = f"{scripts}/100" if scripts > 0 else "未开始"
+    progress = f"{effective}/100" if effective > 0 else "未开始"
 
     # Speed table
     st = get_speed_table_status(Path(proj["path"]))
@@ -276,6 +370,9 @@ def scan_projects(workspace_path):
         scripts = find_scripts(project_dir)
         outlines = find_outlines(project_dir)
         last_mod = get_last_modified(project_dir)
+        docx_eps = count_docx_episodes(project_dir)
+        # Progress = max of script files and docx source episodes
+        effective_eps = max(len(scripts), docx_eps)
 
         project_data = {
             "name": project_dir.name,
@@ -284,13 +381,16 @@ def scan_projects(workspace_path):
             "has_research_report": research.exists(),
             "has_story_bible": bible.exists(),
             "scripts_count": len(scripts),
+            "docx_episodes": docx_eps,
+            "effective_episodes": effective_eps,
             "outline_files": outlines,
             "last_modified": last_mod,
             "characters": extract_characters_from_anchor(anchor) if anchor.exists() else [],
-            "keywords": extract_keywords_from_anchor(anchor) if anchor.exists() else []
+            "keywords": extract_keywords_from_anchor(anchor) if anchor.exists() else [],
+            "abandoned": is_abandoned(project_dir)
         }
         projects.append(project_data)
-        if len(scripts) > 0:
+        if effective_eps > 0:
             active_count += 1
 
     return {
@@ -344,11 +444,12 @@ def main():
 
 
 def _print_project(proj):
+    effective = proj.get("effective_episodes", proj["scripts_count"])
     print(f"▸ {proj['name']}")
     print(f"  锚点: {'✓' if proj['has_anchor'] else '✗'}")
     print(f"  调研报告: {'✓' if proj['has_research_report'] else '✗'}")
     print(f"  故事圣经: {'✓' if proj['has_story_bible'] else '✗'}")
-    print(f"  剧本: {proj['scripts_count']} 集")
+    print(f"  剧本: {proj['scripts_count']} 集 (源文档 {proj.get('docx_episodes', 0)} 集, 有效 {effective} 集)")
     print(f"  大纲: {len(proj['outline_files'])} 文件")
     if proj['characters']:
         print(f"  角色: {', '.join(proj['characters'])}")

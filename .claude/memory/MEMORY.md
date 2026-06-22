@@ -1,0 +1,4 @@
+- [编剧工作台](project_script_workstation.md) — 短剧创作系统 v8.0，主编+写手分工（念念审查+DeepSeek执行），规则三层分级(⛔⚡💡)
+- [v8.0重构](v8_refactoring.md) — 2026.6.22 完成：规则~150→~25条，负向→正向，念念独立审查
+- [核心创作DNA](core_creative_dna.md) — v8.0 三层分级创作宪法（2026.6.22 重构）
+- [AI桥接工具](ai_bridge_access.md) — DeepSeek外脑桥接，供编剧工作台联网搜索

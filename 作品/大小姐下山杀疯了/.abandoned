@@ -1,0 +1,8 @@
+{
+  "abandoned_at": "2026-06-21T15:02:00",
+  "reason": "用户主动放弃，重新开始新项目",
+  "status_at_abandonment": {
+    "progress": "3/100",
+    "scripts_written": 3
+  }
+}

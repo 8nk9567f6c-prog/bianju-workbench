@@ -1,0 +1,10 @@
+{
+  "abandoned_at": "2026-06-21T15:00:00",
+  "reason": "用户主动放弃",
+  "status_at_abandonment": {
+    "progress": "15/100",
+    "outline_complete": true,
+    "scripts_written": 15,
+    "s_plus_outline_score": 89.5
+  }
+}

@@ -1,9 +1,9 @@
 ---
 name: bianju-workstation
-description: 短剧编剧工作台 v7.1——职业下沉市场短剧创作 Agent 系统。四 Agent 调度框架(调度→选题调研→大纲搭建→内容扩充)，100集×5w+字标准化产出，SS/S+ 爆款算法，AG3 创作铁律升级(一事一集/对话主力/字数控管≤650/伏笔速回收/剧情简化)，收敛式修订循环(Forge Loop: Reader-Sim+Critic四通道)，逐幕张力0-10量化，双模情绪引擎(情绪银行+情绪弹簧)，35斜杠命令，8基因对标+风格指纹，MCP 自动验证(17工具80+项)。融合救猫咪+麦基+悉德菲尔德+红果算法+drama-creator方法论+好莱坞评估标准。
-version: "7.1.0"
+description: 短剧编剧工作台 v8.0——主编+写手分工模式。念念主编负责审查+提示词工程，DeepSeek Agent 负责调研/大纲/剧本执行。100集 v5.0 格式标准化产出，规则三层分级(⛔硬红线/⚡核心约束/💡优化建议)，正向指令优先。
+version: "8.0"
 author: "编剧工作台"
-tags: [screenwriting, short-drama, content-creation, chinese, script-writing, agent-pipeline, forge-convergence-loop]
+tags: [screenwriting, short-drama, content-creation, chinese, script-writing, editor-writer-workflow]
 allowed-tools:
   - Read
   - Write
@@ -17,109 +17,59 @@ allowed-tools:
   - Skill
 ---
 
-# 编剧工作台 v7.1 — 短剧创作 Skill
+# 编剧工作台 v8.0 — 短剧创作 Skill
 
 ## 能力概述
 
-为下沉市场（30岁以上用户，80%消费时长）创作标准化 100 集 × 5w+ 字短剧剧本。以 SS/S+ 爆款算法（10维100分制，S+≥85分）为最高优先级。v7.1 AG3 创作铁律升级（一事一集/对话主力/字数控管≤650/伏笔速回收/剧情简化），收敛式修订循环（Forge Loop）、逐幕张力0-10量化、五维文学润色、风格指纹漂移自动检测、故事圣经自动同步。
+为下沉市场创作标准化 100 集短剧剧本。v8.0 核心变化：**主编+写手分工**——念念独立审查，DeepSeek Agent 专注创作。规则从 150+ 条砍到 ~25 条核心约束，负向禁令全部转为正向指令。
 
-### v7.1 核心升级 vs 竞品
+### v8.0 核心升级 vs v7.x
 
-| 能力维度 | 编剧工作台 v7.1 | drama-creator v2.2 | @gonzih screenwriting |
-|----------|----------------|-------------------|----------------------|
-| 智能体流水线 | ★四 Agent 调度(调度→选题→大纲→内容) | — | — |
-| 收敛式修订循环 | ★Forge Loop (Reader-Sim+Critic四通道+Revision-Writer ≤3轮) | — | — |
-| 逐幕张力量化 | ★0-10 张力曲线+MCP自动验证 | — | — |
-| 情绪引擎 | ★双模(情绪银行+情绪弹簧) | 情绪弹簧 | — |
-| 命令数量 | 35 斜杠命令 | 4 任务模式 | 4 斜杠命令 |
-| 审核体系 | 自审内置(写作+平台+格式+节奏+读者体验) | — | — |
-| MCP 自动验证 | 17 工具 80+ 项 | — | — |
-| 对标拆解 | 8 基因 + 7维风格指纹 | — | — |
-| S+ 评分 | 11 维 100 分制(新增张力设计) | — | — |
-| 文学润色 | ★五维润色(P/I/S/M/Se)+声纹校准 | — | ✓ (punch-up) |
-| 剧本评估 | ✓ (Coverage+S+) | — | ✓ (Coverage) |
-| 风格漂移检测 | ★自动(--baseline基线对比) | — | — |
-| 故事圣经同步 | ★自动(剧本→圣经回写) | — | — |
+| 维度 | v7.x | v8.0 |
+|------|------|------|
+| 分工模式 | Agent 自写自审 | 念念独立审查 + DeepSeek 纯写 |
+| 规则数量 | ~150条 | ~25条核心 |
+| 规则类型 | 大量"禁止" | 正向指令 |
+| 规则冗余 | 三层（spawn+agent+references） | 一层（spawn prompt） |
+| 确认步骤 | 每次路由确认 | 高置信度直接干 |
+| 简单任务 | 必须 spawn | 念念直接做 |
+| PostToolUse | 每次写文件自动同步 | 手动触发 |
+| 启动速度 | 30-60秒 | 5-15秒 |
 
 ## 文件结构
 
 ```
 编剧工作台/
-├── CLAUDE.md              ← 主 Agent 指令集（v7.1：35斜杠命令 + 四 Agent 调度 + 收敛式修订循环 + 17 MCP工具）
-├── CORE_CREATIVE_DNA.md   ← 永久记忆（领域知识：S+评分/黄金四步/情绪银行/算法铁律）
-├── SKILL.md               ← 本文件（Skill 元数据 + 分发入口）
+├── CLAUDE.md              ← 主编指令（v8.0：念念职责+审查清单+路由规则）
+├── CORE_CREATIVE_DNA.md   ← 创作宪法（三层分级：⛔⚡💡）
+├── SKILL.md               ← 本文件
 ├── .claude/
-│   ├── settings.json      ← Hooks（SessionStart/Stop/PreToolUse）
-│   ├── mcp.json           ← MCP 服务器配置（17个自动验证工具）
-│   └── skills/            ← 可安装到其他项目的 skill 副本
-├── .claudeignore          ← 上下文污染防护
-├── agents/                ← ★v7.1 四 Agent 调度系统 + 收敛式修订循环
-│   ├── README.md           ← Agent 系统总览 + 流水线编排指南
-│   ├── agent_topic_research.md       ← Agent 1: 选题调研智能体
-│   ├── agent_outline_construction.md ← Agent 2: 大纲搭建智能体
-│   └── agent_content_expansion.md    ← Agent 3: 内容扩充智能体
+│   └── settings.json      ← Hooks（SessionStart+Stop）
+├── agents/
+│   ├── README.md           ← v8.0 架构总览
+│   ├── agent_dispatcher.md ← 调度框架+spawn模板+念念审查清单
+│   ├── agent_topic_research.md       ← Agent 1: 选题调研
+│   ├── agent_outline_construction.md ← Agent 2: 大纲搭建
+│   ├── agent_content_expansion.md    ← Agent 3: 剧本写作
+│   └── references/
+│       ├── evaluation_rubric.md      ← 竞品评估标准
+│       └── gene_8_criteria.md        ← 对标拆解标准
 ├── scripts/
-│   ├── validators.py      ← 65项自动化验证引擎
-│   ├── mcp_server.py      ← MCP stdio JSON-RPC 服务器（零外部依赖）
-│   ├── auto_fix.py        ← 自动修复引擎（AI腔/格式）
-│   ├── save_docx.py       ← Markdown → Word 转换
-│   ├── save_check.py      ← 自检报告累计保存
-│   ├── save_checkpoint.py ← 会话检查点自动保存
-│   └── md2docx.py         ← Markdown → Word 核心引擎
-├── docs/                  ← PWA 网页应用（规则数据库 + 仪表盘）
-└── 素材库/                ← 热梗名梗·爆款台词素材库
+│   ├── scan_projects.py     ← 项目扫描
+│   ├── save_checkpoint.py   ← 会话检查点
+│   ├── sync_to_obsidian.py  ← Obsidian同步（手动触发）
+│   └── create_shortcut.py   ← 桌面快捷方式
+└── 素材库/                ← 热梗素材库
 ```
 
 ## 启动方式
 
-**方式 A：作为项目打开**（推荐）
-直接在 Claude Code 中打开 `编剧工作台/` 目录，CLAUDE.md 自动加载。
+在 Claude Code 中打开 `编剧工作台/` 目录，CLAUDE.md 自动加载。
 
-**方式 B：安装为 Skill**
-将本目录复制到目标项目的 `.claude/skills/bianju-workstation/`，通过 `/bianju-workstation` 调用。
+## 工作流
 
-**方式 C：MCP 工具独立使用**
-在其他项目中配置 `.claude/mcp.json` 引用 `scripts/mcp_server.py`，获得 7 个自动验证工具。
-
-## MCP 工具（独立使用）
-
-```json
-{
-  "mcpServers": {
-    "bianju-validators": {
-      "command": "python",
-      "args": ["路径/scripts/mcp_server.py"]
-    }
-  }
-}
 ```
-
-17 个工具：`validate_episode` / `check_writing_redlines` / `check_format` / `check_platform_redlines` / `check_content_rules` / `check_rhythm` / `check_emotion_spring` / `check_emotion_spring_full` / `check_emotion_anchors` / `check_emotion_beat_template` / `check_character_emotion_range` / `check_emotion_bank` / `check_paywall_ramp` / `check_info_frontloading` / `check_dialogue_quality` / `check_tension_arc` / `validate_multi_episodes`
-
-## 核心命令速查
-
-输入 `/` 查看全部 35 个斜杠命令。关键流程：
-
-**v7.1 四 Agent 调度流水线（一键全流程）**：
+哥哥说话 → 念念判断
+            ├── 简单 → 念念直接做（改对白/查进度/读剧本）
+            └── 重活 → spawn DeepSeek → 念念审查 → 过/改/重写
 ```
-/流水线 → Agent 1 选题调研(等确认) → Agent 2 大纲搭建(等确认) → Agent 3 内容扩充(五阶段等确认) → /导出
-```
-
-**传统手动流程**：
-```
-/新项目 → /对标 → /备忘 → /简介 → /人物 → /大纲(等确认) → /梗概
-→ /一审(1-3集) → /审核1 → /二审(4-10集) → /审核2
-→ /三审(11-30集) → /审核3 → /50集(31-50集) → /审核50
-→ /完本(51-100集) → /终审 → /导出
-```
-
-每个审核命令自动启动 5 个并行 Agent（剧情大纲/人物设定/已有逻辑/平台红线/格式规范）。
-
-**三智能体独立调用**：`/选题调研` `/大纲搭建` `/内容扩充`——适合只需要某个阶段的场景。
-
-## 技术架构
-
-- **语言**：Python 3.12+（仅 stdlib，零外部依赖）
-- **协议**：MCP JSON-RPC 2.0 over stdio
-- **配置**：.claude/mcp.json + .claude/settings.json (hooks)
-- **部署**：本地 Claude Code + MCP server 子进程

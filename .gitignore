@@ -21,6 +21,10 @@ desktop.ini
 *.tmp
 *.temp
 ~$*.docx
+*.docx
+
+# Backups
+备份/
 
 # Python venv
 venv/
