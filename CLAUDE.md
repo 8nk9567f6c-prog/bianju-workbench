@@ -1,6 +1,7 @@
 # 编剧工作台 v8.0
 
 > 短剧创作系统——主编+写手分工模式。
+> **通信协议**：启动时加载 `D:\WorkSpace\shared\COMMUNICATION_PROTOCOL.md`
 > **记忆隔离**：独立记忆库 `.claude/memory/`，可搜索 `D:\Obsidian\剧本库\`。
 
 ---

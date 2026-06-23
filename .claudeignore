@@ -1,5 +1,14 @@
-# 编剧工作台 - 上下文污染防护
-# 排除不需要加载到 Claude Code 上下文的文件
+# 编剧工作台 - 上下文污染防护 + 记忆隔离
+
+# === 记忆隔离：不加载其他智能体 ===
+C:/Users/17928/.claude/projects/
+D:/WorkSpace/自媒体工作台/
+D:/WorkSpace/念念/
+D:/WorkSpace/念念备份/
+D:/Obsidian/念念/
+
+# 允许共享协议
+!D:/WorkSpace/shared/COMMUNICATION_PROTOCOL.md
 
 # 版本备份
 备份/
