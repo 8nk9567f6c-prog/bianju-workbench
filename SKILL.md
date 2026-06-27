@@ -1,9 +1,9 @@
 ---
 name: bianju-workstation
 description: 短剧编剧工作台 v8.0——主编+写手分工模式。念念主编负责审查+提示词工程，DeepSeek Agent 负责调研/大纲/剧本执行。100集 v5.0 格式标准化产出，规则三层分级(⛔硬红线/⚡核心约束/💡优化建议)，正向指令优先。
-version: "8.0"
+version: "9.2"
 author: "编剧工作台"
-tags: [screenwriting, short-drama, content-creation, chinese, script-writing, editor-writer-workflow]
+tags: [screenwriting, short-drama, content-creation, chinese, script-writing, editor-writer-workflow, minimalist]
 allowed-tools:
   - Read
   - Write

@@ -2,3 +2,6 @@
 - [v8.0重构](v8_refactoring.md) — 2026.6.22 完成：规则~150→~25条，负向→正向，念念独立审查
 - [核心创作DNA](core_creative_dna.md) — v8.0 三层分级创作宪法（2026.6.22 重构）
 - [AI桥接工具](ai_bridge_access.md) — DeepSeek外脑桥接，供编剧工作台联网搜索
+- [致富剧纯公式](pure-getting-rich-formula.md) — 不换地图、不让反派知道秘密、只鉴宝攒钱。主编反馈后总结
+- [对标剧本密度规律](benchmark-episode-density.md) — 每集700字+7-9拍+1-1.4场景。三剧本拆解结论
+- [主编反馈记录](editor-feedback-log.md) — 破碗项目的历次反馈及应对。E13+偏离致富、节奏太赶、旧大纲全抛
