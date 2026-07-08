@@ -1,7 +1,9 @@
-- [编剧工作台](project_script_workstation.md) — 短剧创作系统 v8.0，主编+写手分工（念念审查+DeepSeek执行），规则三层分级(⛔⚡💡)
-- [v8.0重构](v8_refactoring.md) — 2026.6.22 完成：规则~150→~25条，负向→正向，念念独立审查
-- [核心创作DNA](core_creative_dna.md) — v8.0 三层分级创作宪法（2026.6.22 重构）
-- [AI桥接工具](ai_bridge_access.md) — DeepSeek外脑桥接，供编剧工作台联网搜索
-- [致富剧纯公式](pure-getting-rich-formula.md) — 不换地图、不让反派知道秘密、只鉴宝攒钱。主编反馈后总结
-- [对标剧本密度规律](benchmark-episode-density.md) — 每集700字+7-9拍+1-1.4场景。三剧本拆解结论
-- [主编反馈记录](editor-feedback-log.md) — 破碗项目的历次反馈及应对。E13+偏离致富、节奏太赶、旧大纲全抛
+- [念念写作红线](../作品/乞丐捡漏赚翻天/REDLINES.md) — 项目级。四条红线：人物不违人设+△纯动作+禁无主叙述+先审后出
+- [10集一卡工作流](workflow-10ep-card.md) — 每10集一卡，先验收→再大纲→再正文
+- [参考剧本格式基线](reference-format-baseline.md) — 格式/对白/爽点保底标准，覆盖v9.2默认，OS不设硬指标
+- [对标库学习](benchmark-library.md) — 5部透视鉴宝爆款拆解：四剧骨架+3集模板+6钩子手法
+- [拆解两本新对标](deconstruct-two-benchmarks.md) — 《透视眼捡漏致富》+《财神眼》拆解：赌约引擎+捡漏接力+男女频差异+通用公式
+- [第二轮6本对标](benchmark-round2-six.md) — 重生08/缅国赌石/透视眼/鉴宝天下/致富神瞳：异空间升级+权威递进+中期目标锚
+- [项目E1-E18诊断](project-diagnosis-e1-e18.md) — 乞丐捡漏赚翻天主编砍集分析+重写清单+与对标差距表
+- [体量标准](episode-density-rules.md) — 小事件2-3集，大事件4-6集，信息压缩+言语激烈+高频嘲讽
+- [E14三版对照基线](e14-comparison-baseline.md) — 念念版+DS版存档，待明日哥哥自写版对比，学习差距
